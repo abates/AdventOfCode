@@ -1,39 +1,33 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"github.com/abates/AdventOfCode/2016/util"
 	"os"
 )
 
 func main() {
-
-	reader := bufio.NewReader(os.Stdin)
-	for {
+	for _, line := range util.ReadInput() {
 		visited := make(map[string]bool)
 		walker := &Walker{}
-		err := readInput(reader, func(operation string, distance int) bool {
-			switch operation {
+		for _, operation := range splitLine(line) {
+			switch operation.direction {
 			case "L":
 				walker.TurnLeft()
 			case "R":
 				walker.TurnRight()
 			default:
-				println("Unknown operation", operation)
+				println("Unknown direction", operation.direction)
 			}
-			done := false
-			walker.Walk(distance, func(c Coordinate) {
+			walker.Walk(operation.distance, func(c Coordinate) {
 				if _, found := visited[walker.position.String()]; found {
 					fmt.Printf("Distance %d\n", walker.position.Distance(Coordinate{0, 0}))
-					done = true
+					os.Exit(0)
 				} else {
 					visited[walker.position.String()] = true
 				}
 			})
-			return !done
-		})
-		if err != nil {
-			break
 		}
+		fmt.Printf("Distance: %d\n", walker.position.Distance(Coordinate{0, 0}))
 	}
 }
