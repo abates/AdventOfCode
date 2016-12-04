@@ -2,7 +2,17 @@ package main
 
 import (
 	"fmt"
+	"github.com/abates/AdventOfCode/2016/util"
+	"strings"
 )
+
+func readSequences() [][]string {
+	sequences := make([][]string, 0)
+	for _, line := range util.ReadInput() {
+		sequences = append(sequences, strings.Split(line, ""))
+	}
+	return sequences
+}
 
 type Keypad struct {
 	x    int
