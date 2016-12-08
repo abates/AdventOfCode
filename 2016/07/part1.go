@@ -12,7 +12,6 @@ func main() {
 		if ip.SupportsTLS() {
 			count++
 		}
-
 	}
 	fmt.Printf("%d\n", count)
 }
