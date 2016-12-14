@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
+	"github.com/abates/AdventOfCode/2016/util"
 	"strconv"
 )
 
@@ -109,15 +109,15 @@ func (s *State) Move(fromItem int, toFloor Level) {
 }
 
 func (s *State) HashString() string {
-	buffer := &bytes.Buffer{}
+	writer := util.StringWriter{}
 
-	buffer.Write([]byte(fmt.Sprintf("%d", s.elevator)))
+	writer.Writef("%d", s.elevator)
 	for _, level := range s.levels {
 		for _, item := range level {
-			buffer.Write([]byte(item))
+			writer.Write(item)
 		}
 	}
-	return buffer.String()
+	return writer.String()
 }
 
 func (s *State) Hash() Hash {
@@ -138,20 +138,20 @@ func (s *State) Equal(other *State) bool {
 }
 
 func (s *State) String() string {
-	buffer := &bytes.Buffer{}
+	writer := &util.StringWriter{}
 	for i := len(s.levels) - 1; i >= 0; i-- {
 		items := s.levels[i]
 		if Level(i) == s.elevator {
-			buffer.Write([]byte("E"))
+			writer.Write("E")
 		} else {
-			buffer.Write([]byte(blankItem))
+			writer.Write(blankItem)
 		}
 		for _, item := range items {
-			buffer.Write([]byte(fmt.Sprintf("%2s ", item)))
+			writer.Writef("%2s ", item)
 		}
-		buffer.Write([]byte("\n"))
+		writer.Write("\n")
 	}
-	return buffer.String()
+	return writer.String()
 }
 
 func (s *State) createNextState(level Level, itemsToMove []int) (newState *State) {
