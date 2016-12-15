@@ -1,3 +1,9 @@
+/**
+ * Adapted from
+ *       Author: Rob Pike
+ *         Date: 2011-08-30
+ * Availability: https://talks.golang.org/2011/lex.slide#1
+ */
 package util
 
 import (
