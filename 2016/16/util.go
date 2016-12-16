@@ -2,89 +2,102 @@ package main
 
 import (
 	"bytes"
-	"fmt"
-	"math/big"
 )
 
-func Generate(bitLen int, a *big.Int) *big.Int {
-	b := &big.Int{}
-	b.Set(a)
-	b.Lsh(b, uint(bitLen+1))
-	bytes := a.Bytes()
+type Disk struct {
+	size int
+	byts []byte
+}
+
+func NewDisk(size int) *Disk {
+	numByts := size / 8
+	if size%8 != 0 {
+		numByts++
+	}
+
+	return &Disk{
+		size: size,
+		byts: make([]byte, numByts),
+	}
+}
+
+func (d *Disk) GetBit(i int) int {
+	if i >= d.size {
+		return 0
+	}
+
+	byt := d.byts[i/8]
+	bit := 7 - uint(i%8)
+	if byt&(1<<bit) == 0 {
+		return 0
+	}
+	return 1
+}
+
+func (d *Disk) Fill(prefix string) {
+	length := len(prefix)
+	for i, c := range prefix {
+		if c == '1' {
+			d.SetBit(i, 1)
+		}
+	}
+
+	for ; length < d.size; length += length + 1 {
+		Generate(length, d)
+	}
+}
+
+func (d *Disk) SetBit(i, v int) {
+	if i >= d.size {
+		return
+	}
+
+	byt := i / 8
+	bit := 7 - uint(i%8)
+	if v == 0 {
+		d.byts[byt] &= ^(1 << bit)
+	} else if v == 1 {
+		d.byts[byt] |= (1 << bit)
+	}
+}
+
+func Generate(bitLen int, disk *Disk) {
 	for i := 0; i < bitLen; i++ {
-		//println("Getting byte", len(bytes)-(i/8), "out of", len(bytes), "for bit", i)
-		byt := byte(0x00)
-		if (i / 8) < len(bytes) {
-			byt = bytes[len(bytes)-(i/8)-1]
+		if disk.GetBit(i) == 0 {
+			disk.SetBit(bitLen+bitLen-i, 1)
 		}
-		bit := uint8(i % 8)
-		v := uint(0)
-		if byt&(1<<bit) == 0 {
-			v = 1
+	}
+}
+
+func (d *Disk) String() string {
+	buffer := &bytes.Buffer{}
+
+	for i := 0; i < d.size; i++ {
+		if d.GetBit(i) == 1 {
+			buffer.Write([]byte("1"))
+		} else {
+			buffer.Write([]byte("0"))
 		}
-		b.SetBit(b, bitLen-i-1, v)
-		//b.SetBit(b, i, v)
 	}
 
-	return b
+	return buffer.String()
 }
 
-func Fill(length int, bitLen int, a *big.Int) *big.Int {
-	add := 0
-	if bitLen > a.BitLen() {
-		add = bitLen - a.BitLen()
-	}
-	for ; a.BitLen()+add < length; a = Generate(a.BitLen()+add, a) {
-		fmt.Printf("Length is now %d\n", a.BitLen())
-	}
-	return a.Rsh(a, uint(a.BitLen()+add-length))
-}
+func (d *Disk) Checksum() string {
+	oldDisk := d
+	var checksum *Disk
 
-func FillString(length int, input string) (*big.Int, error) {
-	i := &big.Int{}
-	_, err := fmt.Sscanf(input, "%b", i)
-	bitLen := i.BitLen()
-	if input[0] == '0' {
-		bitLen++
-	}
-	return Fill(length, bitLen, i), err
-}
-
-func checksum(a string) string {
-	checksum := &bytes.Buffer{}
-	one := []byte("1")
-	zero := []byte("0")
 	for {
-		for i := 0; i < len(a); i += 2 {
-			if i+1 < len(a) {
-				if a[i] == a[i+1] {
-					checksum.Write(one)
-				} else {
-					checksum.Write(zero)
-				}
-			} else if a[i] == '0' {
-				checksum.Write(one)
-			} else {
-				checksum.Write(zero)
+		checksum = NewDisk(oldDisk.size / 2)
+		for i := 0; i < oldDisk.size; i += 2 {
+			if oldDisk.GetBit(i) == oldDisk.GetBit(i+1) {
+				checksum.SetBit(i/2, 1)
 			}
 		}
-
-		a = checksum.String()
-		if len(a)%2 == 1 {
+		if checksum.size%2 != 0 {
 			break
 		}
-		checksum.Reset()
+		oldDisk = checksum
 	}
-
-	return a
-}
-
-func Checksum(leadingZero bool, a *big.Int) string {
-	s := ""
-	if leadingZero {
-		s = fmt.Sprintf("0%b", a)
-	} else {
-		s = fmt.Sprintf("%b", a)
-	}
-	return checksum(s)
+	return checksum.String()
 }

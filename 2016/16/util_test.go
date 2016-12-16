@@ -1,66 +1,62 @@
 package main
 
 import (
-	"math/big"
+	"bytes"
 	"testing"
 )
 
 func TestGenerate(t *testing.T) {
 	tests := []struct {
 		bitLen int
-		a      int64
-		result int64
+		a      []byte
+		result []byte
 	}{
-		{1, 0x01, 0x04},
-		{5, 0x1f, 0x7c0},
-		{12, 0xf0a, 0x1e14af0},
-		{2, 0x01, 0x09},
-		{9, 0xd5, 0x354a9},
+		{1, []byte{0x80}, []byte{0x80}},
+		{5, []byte{0xf8, 00}, []byte{0xf8, 0x00}},
+		{12, []byte{0xf0, 0xa0, 0x00, 0x00}, []byte{0xf0, 0xa5, 0x78, 0x00}},
+		{2, []byte{0x80}, []byte{0x90}},
+		{9, []byte{0x6a, 0x80, 0x00}, []byte{0x6a, 0x95, 0x20}},
 	}
 
 	for i, test := range tests {
-		expected := big.NewInt(test.result)
-		a := big.NewInt(test.a)
-		a = Generate(test.bitLen, a)
+		disk := &Disk{
+			size: len(test.a) * 8,
+			byts: test.a,
+		}
+		Generate(test.bitLen, disk)
 
-		if a.Cmp(expected) != 0 {
-			t.Errorf("Test %d Expected %b got %b", i, expected, a)
+		if !bytes.Equal(test.a, test.result) {
+			t.Errorf("Test %d Expected %08b got %08b", i, test.result, test.a)
 		}
 	}
 }
 
-func TestFill(t *testing.T) {
-	i := big.NewInt(0x10)
-	a := Fill(20, i.BitLen(), i)
-	expected := big.NewInt(0x83c87)
-	if a.Cmp(expected) != 0 {
-		t.Errorf("Expected %b got %b", expected, a)
+func TestFillString(t *testing.T) {
+	disk := NewDisk(20)
+	disk.Fill("10000")
+	expected := []byte{0x83, 0xc8, 0x70}
+	if !bytes.Equal(disk.byts, expected) {
+		t.Errorf("Expected %08b got %08b", expected, disk.byts)
 	}
 }
 
 func TestChecksum(t *testing.T) {
 	tests := []struct {
-		fillLen int
-		input   string
-		result  string
+		size   int
+		input  string
+		result string
 	}{
 		{20, "10000", "01100"},
 		{10, "011010101", "00000"},
 	}
 
 	for i, test := range tests {
-		a, _ := FillString(test.fillLen, test.input)
-		result := Checksum(test.input[0] == '0', a)
+		disk := NewDisk(test.size)
+		disk.Fill(test.input)
+
+		result := disk.Checksum()
 		if result != test.result {
 			t.Errorf("Test %d failed. Expected %s got %s", i, test.result, result)
 		}
-		/*i := big.NewInt(0x10)
-		a := Fill(20, i.BitLen(), i)
-		checksum := Checksum(false, a)
-		expected := "01100"
-
-		if checksum != expected {
-			t.Errorf("Expected %s got %s", expected, checksum)
-		}*/
 	}
 }
