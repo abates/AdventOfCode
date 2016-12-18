@@ -76,14 +76,29 @@ func (t *Tree) VisitedNodes() []string {
 }
 
 func (t *Tree) Find(destination Node) []Node {
-	return t.find(destination, 0)
+	return t.find(destination, nil)
 }
+
+type stopFunc func(int, Node) bool
 
 func (t *Tree) FindAt(level int) []Node {
-	return t.find(nil, level)
+	return t.find(nil, func(l int, n Node) bool {
+		return l == level+1
+	})
 }
 
-func (t *Tree) find(destination Node, maxDepth int) []Node {
+func (t *Tree) Height(destination Node) int {
+	level := 0
+	t.find(nil, func(l int, node Node) bool {
+		if destination.Equal(node) {
+			level = l
+		}
+		return false
+	})
+	return level
+}
+
+func (t *Tree) find(destination Node, stop stopFunc) []Node {
 	t.visited = make(map[string]struct{})
 	q := NodeQueue{
 		queue: make([]*PathNode, 0),
@@ -96,7 +111,7 @@ func (t *Tree) find(destination Node, maxDepth int) []Node {
 
 	for q.Len() > 0 {
 		level := len(q.Peek().path)
-		if maxDepth > 0 && level == maxDepth+1 {
+		if stop != nil && stop(level, t.position) {
 			return q.Nodes()
 		}
 
