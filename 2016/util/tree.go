@@ -1,9 +1,5 @@
 package util
 
-import (
-	"fmt"
-)
-
 type Node interface {
 	ID() string
 	Neighbors() []Node
@@ -97,17 +93,11 @@ func (t *Tree) find(destination Node, maxDepth int) []Node {
 		path: []Node{t.position},
 	})
 	t.visited[t.position.ID()] = struct{}{}
-	lastLevel := 0
 
 	for q.Len() > 0 {
-		//fmt.Printf("Queue: %v\n", q.queue)
 		level := len(q.Peek().path)
 		if maxDepth > 0 && level == maxDepth+1 {
 			return q.Nodes()
-		}
-		if level != lastLevel {
-			fmt.Printf("Level %d.  Queue has %d\n", level, q.Len())
-			lastLevel = level
 		}
 
 		nextNode := q.Shift()
