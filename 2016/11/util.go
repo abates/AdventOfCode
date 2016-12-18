@@ -1,3 +1,9 @@
+/**
+* The method of generating states was adapted from:
+ *       Author: Andrew Foote
+ *         Date: 2016-12-11
+ * Availability: https://andars.github.io/aoc_day11.html
+*/
 package main
 
 import (
