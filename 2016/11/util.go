@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/abates/AdventOfCode/2016/util"
+	"sort"
 	"strconv"
+	"strings"
 )
 
 const blankItem = "."
@@ -58,11 +60,8 @@ type Hash uint64
 type Level int
 
 type State struct {
-	elevator      Level
-	levels        [][]string
-	visitedStates map[Hash]bool
-	nextStates    map[Hash]*State
-	hash          Hash
+	elevator Level
+	levels   [][]string
 }
 
 func ReadStateFromHash(hash string) *State {
@@ -91,9 +90,8 @@ func ReadStateFromHash(hash string) *State {
 
 func NewState(oldState *State) *State {
 	newState := &State{
-		elevator:      oldState.elevator,
-		levels:        make([][]string, len(oldState.levels)),
-		visitedStates: oldState.visitedStates,
+		elevator: oldState.elevator,
+		levels:   make([][]string, len(oldState.levels)),
 	}
 
 	for i, level := range oldState.levels {
@@ -120,21 +118,36 @@ func (s *State) HashString() string {
 	return writer.String()
 }
 
-func (s *State) Hash() Hash {
-	hash := Hash(s.elevator)
-	for _, level := range s.levels {
-		for _, item := range level {
-			hash = hash << 1
-			if item != blankItem {
-				hash |= 0x01
+func (s *State) ID() string {
+	pairs := make([]string, 0)
+	items := s.levels[0]
+	pair := ""
+	for i := 0; i < len(items); i++ {
+		if i%2 == 0 {
+			pair = "("
+		}
+		for j := 0; j < len(s.levels); j++ {
+			if s.levels[j][i] != blankItem {
+				pair = fmt.Sprintf("%s%d", pair, j)
+				break
 			}
 		}
+		if i%2 == 0 {
+			pair = fmt.Sprintf("%s,", pair)
+		} else {
+			pair = fmt.Sprintf("%s)", pair)
+			pairs = append(pairs, pair)
+		}
 	}
-	return hash
+	sort.Strings(pairs)
+	return fmt.Sprintf("%d,%s", s.elevator, strings.Join(pairs, ","))
 }
 
-func (s *State) Equal(other *State) bool {
-	return s.Hash() == other.Hash()
+func (s *State) Equal(node util.Node) bool {
+	if other, ok := node.(*State); ok {
+		return s.ID() == other.ID()
+	}
+	return false
 }
 
 func (s *State) String() string {
@@ -164,75 +177,28 @@ func (s *State) createNextState(level Level, itemsToMove []int) (newState *State
 	return newState
 }
 
-func (s *State) NextStates() map[Hash]*State {
-	if s.nextStates == nil {
-		s.nextStates = make(map[Hash]*State, 0)
-		for _, pair := range pairs(s.levels[s.elevator]) {
-			if len(pair) == 2 {
-				item1 := s.levels[s.elevator][pair[0]]
-				item2 := s.levels[s.elevator][pair[1]]
-				if !CanLive([]string{item1, item2}) {
-					continue
-				}
+func (s *State) Neighbors() []util.Node {
+	nodes := make([]util.Node, 0)
+	for _, pair := range pairs(s.levels[s.elevator]) {
+		if len(pair) == 2 {
+			item1 := s.levels[s.elevator][pair[0]]
+			item2 := s.levels[s.elevator][pair[1]]
+			if !CanLive([]string{item1, item2}) {
+				continue
 			}
+		}
 
-			for _, direction := range []int{1, -1} {
-				delta := Level(direction)
-				if s.elevator+delta < Level(len(s.levels)) && s.elevator+delta >= 0 {
-					nextState := s.createNextState(s.elevator+delta, pair)
-					nextHash := nextState.Hash()
-					if _, found := s.visitedStates[nextHash]; !found {
-						if CanLive(nextState.levels[nextState.elevator]) {
-							s.visitedStates[nextHash] = true
-							s.nextStates[nextHash] = nextState
-						} else {
-							break
-						}
-					}
+		for _, direction := range []int{1, -1} {
+			delta := Level(direction)
+			if s.elevator+delta < Level(len(s.levels)) && s.elevator+delta >= 0 {
+				nextState := s.createNextState(s.elevator+delta, pair)
+				if CanLive(nextState.levels[nextState.elevator]) {
+					nodes = append(nodes, nextState)
+				} else {
+					break
 				}
 			}
 		}
 	}
-	return s.nextStates
-}
-
-func (s *State) Find(endState *State, depth int) {
-	s.visitedStates = make(map[Hash]bool)
-	for ; ; depth++ {
-		fmt.Printf("Depth %d\n", depth)
-		if path, moreBranches := s.find(endState, depth, nil); path != nil {
-			/*for _, p := range path {
-				fmt.Printf("%s--------------------------------------\n", p)
-			}
-			fmt.Printf("==========================================\n")*/
-			fmt.Printf("%d\n", depth)
-			break
-		} else if moreBranches == false {
-			break
-		}
-	}
-}
-
-func (s *State) find(endState *State, depth int, path []*State) ([]*State, bool) {
-	nextStates := s.NextStates()
-	if depth == 0 {
-		if s.Equal(endState) {
-			return path, false
-		}
-		return nil, len(nextStates) > 0
-	}
-
-	for _, nextState := range nextStates {
-		path = append(path, nextState)
-		p, b := nextState.find(endState, depth-1, path)
-		if p != nil {
-			return p, false
-		}
-
-		if b == false {
-			delete(s.nextStates, nextState.Hash())
-		}
-		path = path[:len(path)-1]
-	}
-	return nil, len(nextStates) > 0
+	return nodes
 }

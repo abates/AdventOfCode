@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/abates/AdventOfCode/2016/util"
 	"reflect"
 	"testing"
 )
@@ -51,23 +52,6 @@ func TestPairs(t *testing.T) {
 		if !reflect.DeepEqual(result, test.result) {
 			t.Errorf("Test %d failed.  Expected %v got %v", i, test.result, result)
 		}
-	}
-}
-
-func TestHash(t *testing.T) {
-	state := &State{
-		elevator: 3,
-		levels: [][]string{
-			{".", ".", ".", ".", ".", ".", ".", ".", ".", "."},
-			{".", ".", ".", ".", ".", ".", ".", ".", ".", "."},
-			{".", ".", ".", ".", ".", ".", ".", ".", ".", "."},
-			{"TG", "TM", "PG", "PM", "SG", "SM", "KG", "KM", "RG", "RM"},
-		},
-	}
-
-	expected := Hash(0x300000003ff)
-	if state.Hash() != expected {
-		t.Errorf("Expected 0x%016x got 0x%016x", expected, state.Hash())
 	}
 }
 
@@ -142,25 +126,24 @@ func TestNextStates(t *testing.T) {
 	//F0 .  .  .  .  LM
 
 	for i, test := range tests {
-		test.initialState.visitedStates = make(map[Hash]bool)
-		validStates := make(map[Hash]*State)
+		validStates := make([]*State, 0)
 		for _, hashString := range test.validStates {
 			state := ReadStateFromHash(hashString)
-			validStates[state.Hash()] = state
+			validStates = append(validStates, state)
 		}
 
-		nextStates := test.initialState.NextStates()
+		nextStates := test.initialState.Neighbors()
 		if len(nextStates) != len(test.validStates) {
 			t.Errorf("Test %d Expected %d next states.  Got %d", i, len(test.validStates), len(nextStates))
 		}
 
-		for hash, state := range validStates {
-			if nextState, found := nextStates[hash]; found {
-				if !nextState.Equal(state) {
-					t.Errorf("Test %d Expected state\n%s\nbut got\n%s", i, state, nextState)
+		if len(nextStates) != len(validStates) {
+			t.Errorf("Test %d Expected next states %v got %v", i, validStates, nextStates)
+		} else {
+			for j, state := range validStates {
+				if !state.Equal(nextStates[j]) {
+					t.Errorf("Test %d Expected state\n%s\nbut got\n%s", i, state, nextStates[j])
 				}
-			} else {
-				t.Errorf("Test %d Did not find expected state with hash %s", i, hash)
 			}
 		}
 	}
@@ -169,5 +152,6 @@ func TestNextStates(t *testing.T) {
 func TestStates(t *testing.T) {
 	initialState := ReadStateFromHash("0.HM.LMHG.....LG.....")
 	endState := ReadStateFromHash("3............HGHMLGLM")
-	initialState.Find(endState, 0)
+	tree := util.NewTree(initialState)
+	tree.Find(endState)
 }

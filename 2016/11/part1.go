@@ -1,6 +1,9 @@
 package main
 
-import ()
+import (
+	"fmt"
+	"github.com/abates/AdventOfCode/2016/util"
+)
 
 /*
  * The first floor contains a thulium generator, a thulium-compatible microchip, a plutonium generator, and a strontium generator.
@@ -29,5 +32,6 @@ func main() {
 		},
 	}
 
-	initialState.Find(endState, 0)
+	tree := util.NewTree(initialState)
+	fmt.Printf("Steps: %d\n", len(tree.Find(endState))-1)
 }

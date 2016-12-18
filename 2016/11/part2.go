@@ -1,6 +1,9 @@
 package main
 
-import ()
+import (
+	"fmt"
+	"github.com/abates/AdventOfCode/2016/util"
+)
 
 /*
  * The first floor contains a thulium generator, a thulium-compatible microchip, a plutonium generator, and a strontium generator.
@@ -12,10 +15,10 @@ func main() {
 	initialState := &State{
 		elevator: 0,
 		levels: [][]string{
-			{".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "EG", "EM", "DG", "DM"},
+			{"TG", "TM", "PG", ".", "SG", ".", ".", ".", ".", ".", "EG", "EM", "DG", "DM"},
 			{".", ".", ".", "PM", ".", "SM", ".", ".", ".", ".", ".", ".", ".", "."},
 			{".", ".", ".", ".", ".", ".", "KG", "KM", "RG", "RM", ".", ".", ".", "."},
-			{"TG", "TM", "PG", "PM", "SG", "SM", "KG", "KM", "RG", "RM", ".", ".", ".", "."},
+			{".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "."},
 		},
 	}
 
@@ -29,5 +32,6 @@ func main() {
 		},
 	}
 
-	initialState.Find(endState, 0)
+	tree := util.NewTree(initialState)
+	fmt.Printf("Steps: %d\n", len(tree.Find(endState))-1)
 }
