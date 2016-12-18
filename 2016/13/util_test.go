@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/abates/AdventOfCode/2016/util"
 	"testing"
 )
 
@@ -20,7 +21,7 @@ func TestMagicDetector(t *testing.T) {
 
 	detector := MagicDetector(10)
 	for i, test := range tests {
-		result := detector(&Coordinate{test.x, test.y})
+		result := detector(&util.Coordinate{test.x, test.y})
 		if result != test.result {
 			t.Errorf("Test %d failed.  Expected %v got %v", i, result, test.result)
 		}
@@ -28,69 +29,52 @@ func TestMagicDetector(t *testing.T) {
 }
 
 func TestWalk(t *testing.T) {
-	walker := NewMagicWalker(1, 1, 10)
-	result := walker.Walk(Coordinate{7, 4})
-	if result != 11 {
-		t.Errorf("Test failed.  Expected %d Got %d", 11, result)
+	tests := []struct {
+		startX      int
+		startY      int
+		destination *util.Coordinate
+		result      int
+		walkFunc    WallDetector
+	}{
+		{1, 1, &util.Coordinate{7, 4}, 12, MagicDetector(10)},
+		{1, 1, &util.Coordinate{4, 4}, 7, func(*util.Coordinate) bool { return true }},
 	}
-}
 
-func TestWalk1(t *testing.T) {
-	walker := NewWalker(1, 1, func(*Coordinate) bool { return true })
-	result := walker.Walk(Coordinate{4, 4})
-	if result != 6 {
-		t.Errorf("Test failed.  Expected %d got %d", 6, result)
+	for i, test := range tests {
+		walker := NewWalker(test.startX, test.startY, test.walkFunc)
+		result := walker.Walk(test.destination)
+		if result != test.result {
+			t.Errorf("Test %d failed.  Expected %d Got %d", i, test.result, result)
+		}
 	}
 }
 
 func TestWalkMax(t *testing.T) {
 	tests := []struct {
-		destination Coordinate
-		max         int
-		result      int
+		max    int
+		result int
 	}{
-		{Coordinate{4, 4}, 1, 5},
+		{1, 5},
 	}
 	for i, test := range tests {
-		walker := NewWalker(1, 1, func(*Coordinate) bool { return true })
-		result := walker.WalkMax(test.destination, test.max)
+		walker := NewWalker(1, 1, func(*util.Coordinate) bool { return true })
+		result := walker.WalkMax(test.max)
 		if result != test.result {
 			t.Errorf("Test %d failed.  Expected %d got %d", i, test.result, result)
 		}
 	}
 }
 
-func TestAdd(t *testing.T) {
-	tests := []struct {
-		position *Coordinate
-		addend   *Coordinate
-		result   *Coordinate
-	}{
-		{&Coordinate{1, 1}, &Coordinate{0, -1}, &Coordinate{1, 0}},
-		{&Coordinate{1, 1}, &Coordinate{1, 0}, &Coordinate{2, 1}},
-		{&Coordinate{1, 1}, &Coordinate{0, -1}, &Coordinate{1, 0}},
-		{&Coordinate{1, 1}, &Coordinate{-1, 0}, &Coordinate{0, 1}},
-	}
-
-	for i, test := range tests {
-		result := test.position.Add(test.addend)
-		if !result.Equal(test.result) {
-			t.Errorf("Test %d failed.  Expected %s but got %s", i, test.result, result)
-		}
-	}
-}
-
 func TestBranch(t *testing.T) {
-	expectedDirections := []Coordinate{{1, 2}, {0, 1}}
-	walker := NewMagicWalker(1, 1, 10)
-	directions := walker.Next()
+	expectedDirections := []*MazeCoordinate{&MazeCoordinate{&util.Coordinate{1, 2}, nil}, &MazeCoordinate{&util.Coordinate{0, 1}, nil}}
+	coordinate := &MazeCoordinate{&util.Coordinate{1, 1}, MagicDetector(10)}
+	directions := coordinate.Neighbors()
 
 	for i, direction := range directions {
 		if !expectedDirections[i].Equal(direction) {
-			t.Errorf("Expected coordinate %s got %s", expectedDirections[i], direction)
+			t.Errorf("Test %d Expected coordinate %s got %s", i, expectedDirections[i], direction)
 		}
 	}
-
 }
 
 func TestDraw(t *testing.T) {
