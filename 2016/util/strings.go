@@ -13,6 +13,10 @@ func (s *StringWriter) Write(p string) (int, error) {
 	return (&s.buffer).Write([]byte(p))
 }
 
+func (s *StringWriter) WriteByte(b byte) error {
+	return (&s.buffer).WriteByte(b)
+}
+
 func (s *StringWriter) Writef(format string, args ...interface{}) {
 	s.Write(fmt.Sprintf(format, args...))
 }
