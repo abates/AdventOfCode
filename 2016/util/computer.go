@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"bytes"
@@ -10,6 +10,12 @@ import (
 type Computer struct {
 	registers map[string]int
 	pc        int
+}
+
+func NewComputer() *Computer {
+	return &Computer{
+		registers: make(map[string]int),
+	}
 }
 
 func (c *Computer) Run(program [][]string) {
@@ -39,6 +45,10 @@ func (c *Computer) Run(program [][]string) {
 			}
 		}
 	}
+}
+
+func (c *Computer) SetRegister(register string, value int) {
+	c.registers[register] = value
 }
 
 func (c *Computer) CpyValue(src, dst string) {

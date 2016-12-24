@@ -16,20 +16,15 @@ func main() {
 }
 
 func part1(program [][]string) {
-	c := &Computer{
-		registers: make(map[string]int),
-	}
-
+	c := util.NewComputer()
 	c.Run(program)
 
 	fmt.Printf("Computer state:\n%s\n", c)
 }
 
 func part2(program [][]string) {
-	c := &Computer{
-		registers: make(map[string]int),
-	}
-	c.registers["c"] = 1
+	c := util.NewComputer()
+	c.SetRegister("c", 1)
 
 	c.Run(program)
 
