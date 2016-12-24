@@ -76,15 +76,23 @@ func (t *Tree) VisitedNodes() []string {
 }
 
 func (t *Tree) Find(destination Node) []Node {
-	return t.find(destination, nil)
+	_, path := t.find(destination, nil)
+	return path
 }
 
-type stopFunc func(int, Node) bool
+type StopFn func(int, Node) bool
 
 func (t *Tree) FindAt(level int) []Node {
-	return t.find(nil, func(l int, n Node) bool {
+	q, _ := t.find(nil, func(l int, n Node) bool {
 		return l == level+1
 	})
+
+	return q
+}
+
+func (t *Tree) FindUntil(cb StopFn) []Node {
+	_, path := t.find(nil, cb)
+	return path
 }
 
 func (t *Tree) Height(destination Node) int {
@@ -98,7 +106,7 @@ func (t *Tree) Height(destination Node) int {
 	return level
 }
 
-func (t *Tree) find(destination Node, stop stopFunc) []Node {
+func (t *Tree) find(destination Node, stop StopFn) ([]Node, []Node) {
 	t.visited = make(map[string]struct{})
 	q := NodeQueue{
 		queue: make([]*PathNode, 0),
@@ -112,14 +120,14 @@ func (t *Tree) find(destination Node, stop stopFunc) []Node {
 	for q.Len() > 0 {
 		level := len(q.Peek().path)
 		if stop != nil && stop(level, t.position) {
-			return q.Nodes()
+			return q.Nodes(), q.Peek().path
 		}
 
 		nextNode := q.Shift()
 		t.position = nextNode.Node()
 
 		if t.position.Equal(destination) {
-			return nextNode.path
+			return q.Nodes(), nextNode.path
 		}
 
 		for _, node := range t.position.Neighbors() {
@@ -135,5 +143,5 @@ func (t *Tree) find(destination Node, stop stopFunc) []Node {
 		}
 	}
 
-	return nil
+	return q.Nodes(), nil
 }
