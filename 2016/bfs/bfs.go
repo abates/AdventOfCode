@@ -75,6 +75,17 @@ func Height(rootNode Node) int {
 	return level
 }
 
+func Find(rootNode Node, id string) (path []Node) {
+	Traverse(rootNode, func(l int, p []Node) bool {
+		if p[len(p)-1].ID() == id {
+			path = p
+			return true
+		}
+		return false
+	})
+	return path
+}
+
 func Traverse(rootNode Node, visit VisitFn) {
 	visited := make(map[string]struct{})
 	q := NodeQueue{
