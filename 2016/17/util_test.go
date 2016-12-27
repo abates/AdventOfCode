@@ -1,7 +1,6 @@
 package main
 
 import (
-	//"github.com/abates/AdventOfCode/2016/util"
 	"reflect"
 	"testing"
 )

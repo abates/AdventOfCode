@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/abates/AdventOfCode/2016/util"
+	"github.com/abates/AdventOfCode/2016/bfs"
 )
 
 func main() {
-	tree := util.NewTree(NewVaultCoordinate(1, 1, "qtetzkpl"))
-	//tree := util.NewTree(NewVaultCoordinate(1, 1, "ihgpwlah"))
-	path := tree.Find(NewVaultCoordinate(4, 4, ""))
-	fmt.Printf("ID: %s\n", path[len(path)-1].ID())
-
-	tree = util.NewTree(NewVaultCoordinate(1, 1, "qtetzkpl"))
-	fmt.Printf("Height: %d\n", tree.Height(NewVaultCoordinate(4, 4, ""))-1)
+	id := ""
+	bfs.Traverse(NewVaultCoordinate(1, 1, "qtetzkpl"), func(l int, p []bfs.Node) bool {
+		c := p[len(p)-1].(*VaultCoordinate)
+		id = c.ID()
+		return c.Coordinate.ID() == "(4,4)"
+	})
+	fmt.Printf("ID: %v\n", id)
+	fmt.Printf("Height: %d\n", bfs.Height(NewVaultCoordinate(1, 1, "qtetzkpl"))-1)
 }
