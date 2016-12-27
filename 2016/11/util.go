@@ -8,6 +8,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/abates/AdventOfCode/2016/bfs"
 	"github.com/abates/AdventOfCode/2016/util"
 	"sort"
 	"strconv"
@@ -149,7 +150,7 @@ func (s *State) ID() string {
 	return fmt.Sprintf("%d,%s", s.elevator, strings.Join(pairs, ","))
 }
 
-func (s *State) Equal(node util.Node) bool {
+func (s *State) Equal(node bfs.Node) bool {
 	if other, ok := node.(*State); ok {
 		return s.ID() == other.ID()
 	}
@@ -183,8 +184,8 @@ func (s *State) createNextState(level Level, itemsToMove []int) (newState *State
 	return newState
 }
 
-func (s *State) Neighbors() []util.Node {
-	nodes := make([]util.Node, 0)
+func (s *State) Neighbors() []bfs.Node {
+	nodes := make([]bfs.Node, 0)
 	for _, pair := range pairs(s.levels[s.elevator]) {
 		if len(pair) == 2 {
 			item1 := s.levels[s.elevator][pair[0]]

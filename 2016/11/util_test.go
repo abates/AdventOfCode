@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/abates/AdventOfCode/2016/util"
 	"reflect"
 	"testing"
 )
@@ -147,11 +146,4 @@ func TestNextStates(t *testing.T) {
 			}
 		}
 	}
-}
-
-func TestStates(t *testing.T) {
-	initialState := ReadStateFromHash("0.HM.LMHG.....LG.....")
-	endState := ReadStateFromHash("3............HGHMLGLM")
-	tree := util.NewTree(initialState)
-	tree.Find(endState)
 }
