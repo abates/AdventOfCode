@@ -1,4 +1,4 @@
-package bfs
+package alg
 
 import (
 	"testing"

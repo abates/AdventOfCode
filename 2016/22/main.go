@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/abates/AdventOfCode/2016/bfs"
+	"github.com/abates/AdventOfCode/2016/alg"
 	"github.com/abates/AdventOfCode/2016/util"
 	"strings"
 )
@@ -22,8 +22,8 @@ func part1(grid *Grid) {
 
 func part2(grid *Grid) {
 	var endState *Grid
-	var p []bfs.Node
-	bfs.Traverse(grid, func(level int, path []bfs.Node) bool {
+	var p []alg.Node
+	alg.Traverse(grid, func(level int, path []alg.Node) bool {
 		p = path
 		position := path[len(path)-1]
 		if grid, ok := position.(*Grid); ok {
@@ -40,7 +40,7 @@ func part2(grid *Grid) {
 	grid.free = endState.free
 	grid.data = endState.data
 
-	bfs.Traverse(grid, func(level int, path []bfs.Node) bool {
+	alg.Traverse(grid, func(level int, path []alg.Node) bool {
 		p = path
 		position := path[len(path)-1]
 		if grid, ok := position.(*Grid); ok {

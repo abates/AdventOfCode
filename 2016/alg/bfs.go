@@ -1,4 +1,4 @@
-package bfs
+package alg
 
 type Node interface {
 	ID() string

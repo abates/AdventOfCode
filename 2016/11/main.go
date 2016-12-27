@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/abates/AdventOfCode/2016/bfs"
+	"github.com/abates/AdventOfCode/2016/alg"
 )
 
 /*
@@ -32,7 +32,7 @@ func part1() {
 		},
 	}
 
-	path := bfs.Find(initialState, endState.ID())
+	path := alg.Find(initialState, endState.ID())
 	fmt.Printf("Steps: %d\n", len(path)-1)
 }
 
@@ -57,7 +57,7 @@ func part2() {
 		},
 	}
 
-	path := bfs.Find(initialState, endState.ID())
+	path := alg.Find(initialState, endState.ID())
 	fmt.Printf("Steps: %d\n", len(path)-1)
 }
 

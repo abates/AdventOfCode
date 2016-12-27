@@ -3,17 +3,17 @@ package main
 import (
 	"crypto/md5"
 	"fmt"
-	"github.com/abates/AdventOfCode/2016/bfs"
+	"github.com/abates/AdventOfCode/2016/alg"
 )
 
 type VaultCoordinate struct {
-	*bfs.Coordinate
+	*alg.Coordinate
 	path string
 }
 
 func NewVaultCoordinate(x, y int, path string) *VaultCoordinate {
 	return &VaultCoordinate{
-		Coordinate: &bfs.Coordinate{x, y},
+		Coordinate: &alg.Coordinate{x, y},
 		path:       path,
 	}
 }
@@ -22,24 +22,24 @@ func (v *VaultCoordinate) ID() string {
 	return v.path
 }
 
-func (v *VaultCoordinate) Equal(node bfs.Node) bool {
+func (v *VaultCoordinate) Equal(node alg.Node) bool {
 	if other, ok := node.(*VaultCoordinate); ok {
 		return v.Coordinate.Equal(other.Coordinate)
 	}
 	return false
 }
 
-func (v *VaultCoordinate) Neighbors() []bfs.Node {
+func (v *VaultCoordinate) Neighbors() []alg.Node {
 	if v.X == 4 && v.Y == 4 {
 		return nil
 	}
 
-	neighbors := make([]bfs.Node, 0)
-	directions := []*bfs.Coordinate{
-		&bfs.Coordinate{0, -1},
-		&bfs.Coordinate{0, 1},
-		&bfs.Coordinate{-1, 0},
-		&bfs.Coordinate{1, 0},
+	neighbors := make([]alg.Node, 0)
+	directions := []*alg.Coordinate{
+		&alg.Coordinate{0, -1},
+		&alg.Coordinate{0, 1},
+		&alg.Coordinate{-1, 0},
+		&alg.Coordinate{1, 0},
 	}
 
 	sum := md5.Sum([]byte(v.path))
