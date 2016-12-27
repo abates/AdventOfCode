@@ -1,13 +1,14 @@
 package main
 
 import (
+	"github.com/abates/AdventOfCode/2016/bfs"
 	"github.com/abates/AdventOfCode/2016/util"
 )
 
-type WallDetector func(*util.Coordinate) bool
+type WallDetector func(*bfs.Coordinate) bool
 
 func MagicDetector(magicNumber int) WallDetector {
-	return func(coordinate *util.Coordinate) bool {
+	return func(coordinate *bfs.Coordinate) bool {
 		value := coordinate.X*coordinate.X + 3*coordinate.X + 2*coordinate.X*coordinate.Y + coordinate.Y + coordinate.Y*coordinate.Y + magicNumber
 		count := 0
 		for value > 0 {
@@ -22,21 +23,21 @@ func MagicDetector(magicNumber int) WallDetector {
 }
 
 type MazeCoordinate struct {
-	*util.Coordinate
+	*bfs.Coordinate
 	isOpenSpace WallDetector
 }
 
-func (m *MazeCoordinate) Equal(node util.Node) bool {
+func (m *MazeCoordinate) Equal(node bfs.Node) bool {
 	if other, ok := node.(*MazeCoordinate); ok {
 		return m.Coordinate.Equal(other.Coordinate)
 	}
 	return false
 }
 
-func (m *MazeCoordinate) Neighbors() []util.Node {
-	nodes := make([]util.Node, 0)
+func (m *MazeCoordinate) Neighbors() []bfs.Node {
+	nodes := make([]bfs.Node, 0)
 	for _, candidate := range m.Coordinate.Neighbors() {
-		if coordinate, ok := candidate.(*util.Coordinate); ok {
+		if coordinate, ok := candidate.(*bfs.Coordinate); ok {
 			if coordinate.X < 0 || coordinate.Y < 0 {
 				continue
 			}
@@ -59,7 +60,7 @@ func Draw(width, height int, detector WallDetector) string {
 	for y := 0; y < height; y++ {
 		writer.Writef("%d ", y)
 		for x := 0; x < width; x++ {
-			if detector(&util.Coordinate{x, y}) {
+			if detector(&bfs.Coordinate{x, y}) {
 				writer.Write(".")
 			} else {
 				writer.Write("#")
@@ -71,26 +72,39 @@ func Draw(width, height int, detector WallDetector) string {
 	return writer.String()
 }
 
-type Walker struct {
-	tree *util.Tree
+func MagicWalk(origin, destination *bfs.Coordinate, magicNumber int) int {
+	return Walk(origin, destination, MagicDetector(magicNumber))
 }
 
-func NewWalker(startX, startY int, wallDetector WallDetector) *Walker {
-	return &Walker{
-		tree: util.NewTree(&MazeCoordinate{&util.Coordinate{startX, startY}, wallDetector}),
+func Walk(origin, destination *bfs.Coordinate, wallDetector WallDetector) int {
+	rootNode := &MazeCoordinate{
+		Coordinate:  origin,
+		isOpenSpace: wallDetector,
 	}
+	return len(bfs.Find(rootNode, destination.ID()))
 }
 
-func NewMagicWalker(startX, startY, magicNumber int) *Walker {
-	return NewWalker(startX, startY, MagicDetector(magicNumber))
+func MagicWalkMax(origin *bfs.Coordinate, magicNumber, maxSteps int) int {
+	return WalkMax(origin, MagicDetector(magicNumber), maxSteps)
 }
 
-func (w *Walker) Walk(destination *util.Coordinate) int {
-	return len(w.tree.Find(&MazeCoordinate{destination, nil}))
-}
+func WalkMax(origin *bfs.Coordinate, wallDetector WallDetector, maxSteps int) int {
+	rootNode := &MazeCoordinate{
+		Coordinate:  origin,
+		isOpenSpace: wallDetector,
+	}
 
-func (w *Walker) WalkMax(maxSteps int) int {
-	w.tree.FindAt(maxSteps)
-	visited := w.tree.VisitedNodes()
+	visited := make(map[string]bool)
+	bfs.Traverse(rootNode, func(l int, p []bfs.Node) bool {
+		if p[len(p)-1].ID() != rootNode.ID() {
+			visited[p[len(p)-1].ID()] = true
+		}
+
+		if l == maxSteps+1 {
+			return true
+		}
+		return false
+	})
+
 	return len(visited)
 }

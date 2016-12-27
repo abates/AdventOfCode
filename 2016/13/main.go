@@ -2,16 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/abates/AdventOfCode/2016/util"
+	"github.com/abates/AdventOfCode/2016/bfs"
 )
 
 func main() {
-	walker := NewMagicWalker(1, 1, 1364)
-
-	distance := walker.Walk(&util.Coordinate{31, 39})
+	distance := MagicWalk(&bfs.Coordinate{1, 1}, &bfs.Coordinate{31, 39}, 1364)
 	fmt.Printf("Distance %d\n", distance-1)
 
-	walker = NewMagicWalker(1, 1, 1364)
-	numVisited := walker.WalkMax(50)
-	fmt.Printf("Num Visited: %d\n", numVisited)
+	visited := MagicWalkMax(&bfs.Coordinate{1, 1}, 1364, 50)
+	fmt.Printf("Num Visited: %d\n", visited)
 }

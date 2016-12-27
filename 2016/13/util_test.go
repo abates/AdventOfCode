@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/abates/AdventOfCode/2016/util"
+	"github.com/abates/AdventOfCode/2016/bfs"
 	"testing"
 )
 
@@ -21,7 +21,7 @@ func TestMagicDetector(t *testing.T) {
 
 	detector := MagicDetector(10)
 	for i, test := range tests {
-		result := detector(&util.Coordinate{test.x, test.y})
+		result := detector(&bfs.Coordinate{test.x, test.y})
 		if result != test.result {
 			t.Errorf("Test %d failed.  Expected %v got %v", i, result, test.result)
 		}
@@ -30,19 +30,17 @@ func TestMagicDetector(t *testing.T) {
 
 func TestWalk(t *testing.T) {
 	tests := []struct {
-		startX      int
-		startY      int
-		destination *util.Coordinate
+		origin      *bfs.Coordinate
+		destination *bfs.Coordinate
 		result      int
 		walkFunc    WallDetector
 	}{
-		{1, 1, &util.Coordinate{7, 4}, 12, MagicDetector(10)},
-		{1, 1, &util.Coordinate{4, 4}, 7, func(*util.Coordinate) bool { return true }},
+		{&bfs.Coordinate{1, 1}, &bfs.Coordinate{7, 4}, 12, MagicDetector(10)},
+		{&bfs.Coordinate{1, 1}, &bfs.Coordinate{4, 4}, 7, func(*bfs.Coordinate) bool { return true }},
 	}
 
 	for i, test := range tests {
-		walker := NewWalker(test.startX, test.startY, test.walkFunc)
-		result := walker.Walk(test.destination)
+		result := Walk(test.origin, test.destination, test.walkFunc)
 		if result != test.result {
 			t.Errorf("Test %d failed.  Expected %d Got %d", i, test.result, result)
 		}
@@ -57,8 +55,7 @@ func TestWalkMax(t *testing.T) {
 		{1, 5},
 	}
 	for i, test := range tests {
-		walker := NewWalker(1, 1, func(*util.Coordinate) bool { return true })
-		result := walker.WalkMax(test.max)
+		result := WalkMax(&bfs.Coordinate{1, 1}, func(*bfs.Coordinate) bool { return true }, test.max)
 		if result != test.result {
 			t.Errorf("Test %d failed.  Expected %d got %d", i, test.result, result)
 		}
@@ -66,8 +63,8 @@ func TestWalkMax(t *testing.T) {
 }
 
 func TestBranch(t *testing.T) {
-	expectedDirections := []*MazeCoordinate{&MazeCoordinate{&util.Coordinate{1, 2}, nil}, &MazeCoordinate{&util.Coordinate{0, 1}, nil}}
-	coordinate := &MazeCoordinate{&util.Coordinate{1, 1}, MagicDetector(10)}
+	expectedDirections := []*MazeCoordinate{&MazeCoordinate{&bfs.Coordinate{1, 2}, nil}, &MazeCoordinate{&bfs.Coordinate{0, 1}, nil}}
+	coordinate := &MazeCoordinate{&bfs.Coordinate{1, 1}, MagicDetector(10)}
 	directions := coordinate.Neighbors()
 
 	for i, direction := range directions {
