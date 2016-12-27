@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/abates/AdventOfCode/2016/util"
+	"github.com/abates/AdventOfCode/2016/bfs"
 	"strconv"
 	"strings"
 )
@@ -24,7 +24,7 @@ func convertToPercent(str string) (percent float32) {
 }
 
 type Node struct {
-	coordinate *util.Coordinate
+	coordinate *bfs.Coordinate
 	filesystem string
 	size       int
 	used       int
@@ -37,7 +37,7 @@ func NewNodeFromString(str string) *Node {
 	var x, y int
 	fmt.Sscanf(fields[0], "/dev/grid/node-x%d-y%d", &x, &y)
 	node := &Node{
-		coordinate: &util.Coordinate{x, y},
+		coordinate: &bfs.Coordinate{x, y},
 		filesystem: fields[0],
 		size:       convertToSize(fields[1]),
 		used:       convertToSize(fields[2]),
@@ -56,7 +56,7 @@ func (n *Node) Copy() *Node {
 		use:        n.use,
 	}
 
-	newNode.coordinate = &util.Coordinate{n.coordinate.X, n.coordinate.Y}
+	newNode.coordinate = &bfs.Coordinate{n.coordinate.X, n.coordinate.Y}
 	return newNode
 }
 
@@ -69,14 +69,14 @@ func (n *Node) MoveTo(destination *Node) {
 	n.use = 0
 }
 
-func (n *Node) Neighbors() []*util.Coordinate {
-	neighbors := make([]*util.Coordinate, 0)
+func (n *Node) Neighbors() []*bfs.Coordinate {
+	neighbors := make([]*bfs.Coordinate, 0)
 	for _, c := range n.coordinate.Neighbors() {
-		coordinate := c.(*util.Coordinate)
+		coordinate := c.(*bfs.Coordinate)
 		if coordinate.X < 0 || coordinate.Y < 0 {
 			continue
 		}
-		neighbors = append(neighbors, c.(*util.Coordinate))
+		neighbors = append(neighbors, c.(*bfs.Coordinate))
 	}
 	return neighbors
 }
@@ -95,8 +95,8 @@ func (n *Node) String() string {
 }
 
 type Grid struct {
-	data *util.Coordinate
-	free *util.Coordinate
+	data *bfs.Coordinate
+	free *bfs.Coordinate
 	grid map[int]map[int]*Node
 }
 
@@ -112,12 +112,12 @@ func (g *Grid) Copy() *Grid {
 		newNode := n.Copy()
 		newGrid.AddNode(newNode)
 	})
-	newGrid.data = &util.Coordinate{g.data.X, g.data.Y}
-	newGrid.free = &util.Coordinate{g.free.X, g.free.Y}
+	newGrid.data = &bfs.Coordinate{g.data.X, g.data.Y}
+	newGrid.free = &bfs.Coordinate{g.free.X, g.free.Y}
 	return newGrid
 }
 
-func (g *Grid) Move(destination *util.Coordinate, source *util.Coordinate) {
+func (g *Grid) Move(destination *bfs.Coordinate, source *bfs.Coordinate) {
 	if g.free.Equal(destination) {
 		g.free = source
 	}
@@ -145,7 +145,7 @@ func (g *Grid) AddNode(n *Node) {
 	}
 }
 
-func (g *Grid) Equal(node util.Node) bool {
+func (g *Grid) Equal(node bfs.Node) bool {
 	if other, ok := node.(*Grid); ok {
 		return g.data.Equal(other.data) && g.free.Equal(other.free)
 	}
@@ -156,8 +156,8 @@ func (g *Grid) ID() string {
 	return g.data.ID() + g.free.ID()
 }
 
-func (g *Grid) Neighbors() []util.Node {
-	neighbors := make([]util.Node, 0)
+func (g *Grid) Neighbors() []bfs.Node {
+	neighbors := make([]bfs.Node, 0)
 	for _, coordinate := range g.grid[g.free.Y][g.free.X].Neighbors() {
 		if row, found := g.grid[coordinate.Y]; found {
 			if node, found := row[coordinate.X]; found {
@@ -181,7 +181,7 @@ func (g *Grid) Iterate(cb func(*Node)) {
 }
 
 func (g *Grid) String() string {
-	/*writer := &util.StringWriter{}
+	/*writer := &bfs.StringWriter{}
 
 	for y := 0; y < len(g.grid); y++ {
 		for x := 0; x < len(g.grid[y]); x++ {
