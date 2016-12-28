@@ -12,6 +12,8 @@ type Computer struct {
 	registers map[string]int64
 	program   [][]string
 	pc        int
+	Stdin     chan int64
+	Stdout    chan int64
 }
 
 func NewComputer() *Computer {
@@ -22,6 +24,8 @@ func NewComputer() *Computer {
 			"c": 0,
 			"d": 0,
 		},
+		Stdin:  make(chan int64, 2),
+		Stdout: make(chan int64),
 	}
 }
 
@@ -33,35 +37,45 @@ func (c *Computer) value(v string) int64 {
 }
 
 func (c *Computer) Run(program [][]string) {
+	defer close(c.Stdin)
+	defer close(c.Stdout)
 	c.program = program
 	c.pc = 0
 	for c.pc < len(c.program) {
 		operation := c.program[c.pc]
-		//fmt.Printf("%d %s %v\n", c.pc, strings.Join(operation, " "), c.registers)
-		switch operation[0] {
-		case "cpy":
-			c.Cpy(c.value(operation[1]), operation[2])
-			c.pc++
-		case "inc":
-			c.Inc(operation[1])
-			c.pc++
-		case "dec":
-			c.Dec(operation[1])
-			c.pc++
-		case "jnz":
-			c.Jnz(c.value(operation[1]), c.value(operation[2]))
-		case "tgl":
-			c.Tgl(c.value(operation[1]))
-			c.pc++
-		case "mul":
-			c.Mul(c.value(operation[1]), c.value(operation[2]), operation[3])
-			c.pc++
-		case "noop":
-			c.pc++
+		select {
+		case <-c.Stdin:
+			return
 		default:
-			panic(fmt.Sprintf("Unknown instruction %s", strings.Join(operation, " ")))
+			switch operation[0] {
+			case "cpy":
+				c.Cpy(c.value(operation[1]), operation[2])
+				c.pc++
+			case "inc":
+				c.Inc(operation[1])
+				c.pc++
+			case "dec":
+				c.Dec(operation[1])
+				c.pc++
+			case "jnz":
+				c.Jnz(c.value(operation[1]), c.value(operation[2]))
+			case "tgl":
+				c.Tgl(c.value(operation[1]))
+				c.pc++
+			case "mul":
+				c.Mul(c.value(operation[1]), c.value(operation[2]), operation[3])
+				c.pc++
+			case "noop":
+				c.pc++
+			case "out":
+				c.Out(c.value(operation[1]))
+				c.pc++
+			default:
+				panic(fmt.Sprintf("Unknown instruction %s", strings.Join(operation, " ")))
+			}
 		}
 	}
+
 }
 
 func (c *Computer) Mul(x, y int64, dst string) {
@@ -111,12 +125,15 @@ func (c *Computer) Dec(register string) {
 }
 
 func (c *Computer) Jnz(value int64, count int64) {
-	//fmt.Printf("Jumping %d from %d to %d\n", count, c.pc, c.pc+count)
 	if value != 0 {
 		c.pc += int(count)
 	} else {
 		c.pc++
 	}
+}
+
+func (c *Computer) Out(value int64) {
+	c.Stdout <- value
 }
 
 func (c *Computer) String() string {
