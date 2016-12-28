@@ -64,6 +64,10 @@ func (b *BasicGraph) AddNode(node GraphNode) {
 	b.nodes[node.ID()] = node
 }
 
+func (b *BasicGraph) GetNode(id string) GraphNode {
+	return b.nodes[id]
+}
+
 func (b *BasicGraph) Nodes() []GraphNode {
 	nodes := make([]GraphNode, len(b.nodes))
 	i := 0
