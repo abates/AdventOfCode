@@ -1,0 +1,16 @@
+mode: set
+github.com/abates/AdventOfCode/util/list.go:15.43,17.2 1 1
+github.com/abates/AdventOfCode/util/list.go:19.40,21.2 1 1
+github.com/abates/AdventOfCode/util/list.go:23.46,25.26 2 1
+github.com/abates/AdventOfCode/util/list.go:28.2,28.22 1 1
+github.com/abates/AdventOfCode/util/list.go:25.26,27.3 1 1
+github.com/abates/AdventOfCode/util/list.go:31.40,38.2 1 1
+github.com/abates/AdventOfCode/util/list.go:40.40,42.30 2 1
+github.com/abates/AdventOfCode/util/list.go:45.2,46.10 2 1
+github.com/abates/AdventOfCode/util/list.go:42.30,44.3 1 1
+github.com/abates/AdventOfCode/util/math.go:3.32,5.27 2 1
+github.com/abates/AdventOfCode/util/math.go:8.2,8.12 1 1
+github.com/abates/AdventOfCode/util/math.go:5.27,7.3 1 1
+github.com/abates/AdventOfCode/util/math.go:11.42,13.27 2 1
+github.com/abates/AdventOfCode/util/math.go:16.2,16.12 1 1
+github.com/abates/AdventOfCode/util/math.go:13.27,15.3 1 1
