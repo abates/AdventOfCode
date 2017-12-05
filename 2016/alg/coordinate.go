@@ -1,39 +1,25 @@
 package alg
 
-import (
-	"fmt"
-)
+import "github.com/abates/AdventOfCode/util"
 
 type Coordinate struct {
-	X int
-	Y int
+	*util.Coordinate
+}
+
+func NewCoordinate(x, y int) *Coordinate {
+	return &Coordinate{&util.Coordinate{x, y}}
 }
 
 func (c *Coordinate) ID() string {
-	return fmt.Sprintf("(%d,%d)", c.X, c.Y)
-}
-
-func (c *Coordinate) String() string {
-	return c.ID()
-}
-
-func (c *Coordinate) Add(addend *Coordinate) (nextCoordinate *Coordinate) {
-	nextCoordinate = &Coordinate{}
-	nextCoordinate.X = c.X + addend.X
-	nextCoordinate.Y = c.Y + addend.Y
-	return nextCoordinate
-}
-
-func (c *Coordinate) Equal(other *Coordinate) bool {
-	return c.X == other.X && c.Y == other.Y
+	return c.String()
 }
 
 func (c *Coordinate) Neighbors() []Node {
-	coordinates := make([]Node, 0)
-	directions := []Coordinate{{0, -1}, {1, 0}, {0, 1}, {-1, 0}}
-	for _, direction := range directions {
-		nextCoordinate := c.Add(&direction)
-		coordinates = append(coordinates, nextCoordinate)
-	}
-	return coordinates
+	nodes := make([]Node, 0)
+	c.Coordinate.Neighbors(func(c *util.Coordinate) {
+		nodes = append(nodes, &Coordinate{c})
+	})
+	return nodes
 }
+
+func (c *Coordinate) Equal(other *Coordinate) bool { return c.Coordinate.Equal(other.Coordinate) }

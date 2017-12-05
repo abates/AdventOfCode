@@ -2,7 +2,6 @@ package alg
 
 import (
 	"bufio"
-	"github.com/davecgh/go-spew/spew"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -58,9 +57,8 @@ func TestSPF(t *testing.T) {
 		}
 
 		spf := SPFAll(graph)
-		s := spew.ConfigState{SortKeys: true}
 		if !reflect.DeepEqual(spf, distances) {
-			t.Errorf("Failed with test data %s\nExpected: %v\n     Got: %v", filename, s.Sprintf("%v", distances), s.Sprintf("%v", spf))
+			t.Errorf("tests[%s] expected %v got %v", filename, distances, spf)
 		}
 	}
 }
