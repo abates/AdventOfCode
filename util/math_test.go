@@ -2,6 +2,24 @@ package util
 
 import "testing"
 
+func TestAbs(t *testing.T) {
+	tests := []struct {
+		input    int
+		expected int
+	}{
+		{-10, 10},
+		{0, 0},
+		{10, 10},
+	}
+
+	for i, test := range tests {
+		got := Abs(test.input)
+		if test.expected != got {
+			t.Errorf("tests[%d] Expected %d got %d", i, test.expected, got)
+		}
+	}
+}
+
 func TestSumInt(t *testing.T) {
 	sum := SumInt(1, 2, 3, 4, 5)
 	if sum != 15 {
