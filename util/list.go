@@ -1,47 +1,55 @@
 package util
 
-type circularIntList struct {
-	ints []int
-	pos  int
+type ListValue interface{}
+
+type CircularList struct {
+	values []ListValue
+	pos    int
 }
 
-type CircularIntList interface {
-	Add(int)
-	Peek() int
-	PeekN(int) int
-	Next() int
+type ListCallback func(ListValue)
+
+func (cl *CircularList) Add(v ListValue) {
+	cl.values = append(cl.values, v)
 }
 
-func NewCircularIntList() CircularIntList {
-	return &circularIntList{pos: -1}
-}
-
-func (cil *circularIntList) Add(i int) {
-	cil.ints = append(cil.ints, i)
-}
-
-func (cil *circularIntList) PeekN(n int) int {
-	pos := cil.pos + n
-	if pos >= len(cil.ints) {
-		pos = pos % len(cil.ints)
+func (cl *CircularList) PeekN(n int) ListValue {
+	pos := cl.pos + n - 1
+	if pos >= len(cl.values) {
+		pos = pos % len(cl.values)
 	}
-	return cil.ints[pos]
+	return cl.values[pos]
 }
 
-func (cil *circularIntList) Peek() int {
-	/*pos := cil.pos + 1
-	if pos >= len(cil.ints) {
-		pos = 0
-	}
-	return cil.ints[pos]*/
-	return cil.PeekN(1)
+func (cl *CircularList) Peek() ListValue {
+	return cl.PeekN(1)
 }
 
-func (cil *circularIntList) Next() int {
-	cil.pos++
-	if cil.pos >= len(cil.ints) {
-		cil.pos = 0
+func (cl *CircularList) Next() ListValue {
+	i := cl.values[cl.pos]
+	cl.pos++
+	if cl.pos >= len(cl.values) {
+		cl.pos = 0
 	}
-	i := cil.ints[cil.pos]
 	return i
+}
+
+func (cl *CircularList) Iterate(callback ListCallback) {
+	for _, value := range cl.values {
+		callback(value)
+	}
+}
+
+type IntListCallback func(int)
+
+type CircularIntList struct {
+	CircularList
+}
+
+func (cl *CircularIntList) Add(i int)       { cl.CircularList.Add(ListValue(i)) }
+func (cl *CircularIntList) Peek() int       { return cl.CircularList.Peek().(int) }
+func (cl *CircularIntList) PeekN(n int) int { return cl.CircularList.PeekN(n).(int) }
+func (cl *CircularIntList) Next() int       { return cl.CircularList.Next().(int) }
+func (cl *CircularIntList) Iterate(cb IntListCallback) {
+	cl.CircularList.Iterate(func(v ListValue) { cb(v.(int)) })
 }

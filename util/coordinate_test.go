@@ -77,9 +77,9 @@ func TestAddSubtractCoordinates(t *testing.T) {
 	}
 }
 
-func TestNeighbors(t *testing.T) {
+func TestNeighborsDiagonals(t *testing.T) {
 	coordinate := &Coordinate{0, 0}
-	expected := [4]Coordinate{
+	expectedNeighbors := [4]Coordinate{
 		Coordinate{0, -1},
 		Coordinate{1, 0},
 		Coordinate{0, 1},
@@ -93,7 +93,25 @@ func TestNeighbors(t *testing.T) {
 		i++
 	})
 
-	if neighbors != expected {
-		t.Errorf("Test expected %-v got %-v", expected, neighbors)
+	if expectedNeighbors != neighbors {
+		t.Errorf("Test expected %-v got %-v", expectedNeighbors, neighbors)
+	}
+
+	expectedDiagonals := [4]Coordinate{
+		Coordinate{-1, 1},
+		Coordinate{1, 1},
+		Coordinate{1, -1},
+		Coordinate{-1, -1},
+	}
+
+	var diagonals [4]Coordinate
+	i = 0
+	coordinate.Diagonals(func(c *Coordinate) {
+		diagonals[i] = *c
+		i++
+	})
+
+	if expectedDiagonals != diagonals {
+		t.Errorf("Test expected %-v got %-v", expectedDiagonals, diagonals)
 	}
 }
