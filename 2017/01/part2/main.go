@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	list := util.NewCircularIntList()
+	list := util.CircularIntList{}
 	f, _ := os.Open("../input.txt")
 	b, _ := ioutil.ReadAll(f)
 	str := strings.TrimSpace(string(b))
