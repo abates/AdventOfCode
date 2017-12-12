@@ -11,13 +11,17 @@ import (
 
 var values = make(map[string]int)
 
-type Direction string
+type Direction *util.Coordinate
 
-const (
-	NORTH = Direction("north")
-	SOUTH = Direction("south")
-	EAST  = Direction("east")
-	WEST  = Direction("west")
+var (
+	North     = Direction(util.NewCoordinate(0, 1))
+	Northeast = Direction(util.NewCoordinate(1, 1))
+	East      = Direction(util.NewCoordinate(1, 0))
+	Southeast = Direction(util.NewCoordinate(1, -1))
+	South     = Direction(util.NewCoordinate(0, -1))
+	Southwest = Direction(util.NewCoordinate(-1, -1))
+	West      = Direction(util.NewCoordinate(-1, 0))
+	Northwest = Direction(util.NewCoordinate(-1, 1))
 )
 
 type Mover struct {
@@ -26,17 +30,7 @@ type Mover struct {
 }
 
 func (m *Mover) Move(direction Direction) {
-	m.id++
-	switch direction {
-	case NORTH:
-		m.coordinate = m.coordinate.Add(&util.Coordinate{0, 1})
-	case SOUTH:
-		m.coordinate = m.coordinate.Add(&util.Coordinate{0, -1})
-	case EAST:
-		m.coordinate = m.coordinate.Add(&util.Coordinate{1, 0})
-	case WEST:
-		m.coordinate = m.coordinate.Add(&util.Coordinate{-1, 0})
-	}
+	m.coordinate = m.coordinate.Add(direction)
 }
 
 func main() {
@@ -53,8 +47,8 @@ func main() {
 
 	dirCount := 0
 	distance := 0
-	directions := []Direction{EAST, NORTH, WEST, SOUTH}
-	mover := &Mover{&util.Coordinate{0, 0}, 0}
+	directions := []Direction{East, North, West, South}
+	mover := &Mover{util.NewCoordinate(0, 0), 0}
 
 	for i := 0; ; i++ {
 		if i%2 == 0 {
@@ -63,16 +57,12 @@ func main() {
 		direction := directions[i%4]
 		for j := 0; j < distance; j++ {
 			mem := 0
-			mover.coordinate.Neighbors(func(c *util.Coordinate) {
+			for _, direction := range []Direction{East, Northeast, North, Northwest, West, Southwest, South, Southeast} {
+				c := mover.coordinate.Add(direction)
 				if v, found := values[c.String()]; found {
 					mem += v
 				}
-			})
-			mover.coordinate.Diagonals(func(c *util.Coordinate) {
-				if v, found := values[c.String()]; found {
-					mem += v
-				}
-			})
+			}
 
 			if mem == 0 {
 				mem = 1
@@ -86,7 +76,7 @@ func main() {
 
 			if mover.id == value {
 				fmt.Printf("Now at %s\n", mover.coordinate)
-				fmt.Printf("Distance to get to %d is %d\n", value, util.ManhattanDistance(mover.coordinate, &util.Coordinate{0, 0}))
+				fmt.Printf("Distance to get to %d is %d\n", value, util.ManhattanDistance(mover.coordinate, util.NewCoordinate(0, 0)))
 				os.Exit(0)
 			}
 

@@ -2,41 +2,64 @@ package util
 
 import (
 	"fmt"
+	"strings"
 )
 
 func ManhattanDistance(c1, c2 *Coordinate) int {
 	d := c1.Subtract(c2)
-	return Abs(d.X) + Abs(d.Y)
+	distance := 0
+	for _, coordinate := range d.Coordinates {
+		distance += Abs(coordinate)
+	}
+	return distance
 }
 
 type Coordinate struct {
-	X int
-	Y int
+	Coordinates []int
+}
+
+func NewCoordinate(coordinates ...int) *Coordinate {
+	return &Coordinate{coordinates}
 }
 
 func (c *Coordinate) String() string {
-	return fmt.Sprintf("(%d,%d)", c.X, c.Y)
+	str := make([]string, len(c.Coordinates))
+	for i, coordinate := range c.Coordinates {
+		str[i] = fmt.Sprintf("%d", coordinate)
+	}
+	return fmt.Sprintf("(%s)", strings.Join(str, ","))
 }
 
 func (c *Coordinate) Add(addend *Coordinate) (nextCoordinate *Coordinate) {
-	nextCoordinate = &Coordinate{}
-	nextCoordinate.X = c.X + addend.X
-	nextCoordinate.Y = c.Y + addend.Y
+	nextCoordinate = &Coordinate{
+		Coordinates: make([]int, len(c.Coordinates)),
+	}
+	for i, coordinate := range c.Coordinates {
+		nextCoordinate.Coordinates[i] = coordinate + addend.Coordinates[i]
+	}
 	return nextCoordinate
 }
 
 func (c *Coordinate) Subtract(subtrahend *Coordinate) (nextCoordinate *Coordinate) {
-	nextCoordinate = &Coordinate{}
-	nextCoordinate.X = c.X - subtrahend.X
-	nextCoordinate.Y = c.Y - subtrahend.Y
+	nextCoordinate = &Coordinate{
+		Coordinates: make([]int, len(c.Coordinates)),
+	}
+	for i, coordinate := range c.Coordinates {
+		nextCoordinate.Coordinates[i] = coordinate - subtrahend.Coordinates[i]
+	}
 	return nextCoordinate
 }
 
 func (c *Coordinate) Equal(other *Coordinate) bool {
-	return c.X == other.X && c.Y == other.Y
+	for i, coordinate := range c.Coordinates {
+		if coordinate != other.Coordinates[i] {
+			return false
+		}
+	}
+	return true
 }
 
-type CoordinateCallback func(*Coordinate)
+/*type CoordinateCallback func(*Coordinate)
 
 func (c *Coordinate) Neighbors(callback CoordinateCallback) {
 	directions := []Coordinate{{0, -1}, {1, 0}, {0, 1}, {-1, 0}}
@@ -52,4 +75,4 @@ func (c *Coordinate) Diagonals(callback CoordinateCallback) {
 		nextCoordinate := c.Add(&direction)
 		callback(nextCoordinate)
 	}
-}
+}*/

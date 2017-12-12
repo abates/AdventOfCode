@@ -7,7 +7,7 @@ type Coordinate struct {
 }
 
 func NewCoordinate(x, y int) *Coordinate {
-	return &Coordinate{&util.Coordinate{x, y}}
+	return &Coordinate{util.NewCoordinate(x, y)}
 }
 
 func (c *Coordinate) ID() string {
@@ -16,9 +16,11 @@ func (c *Coordinate) ID() string {
 
 func (c *Coordinate) Neighbors() []Node {
 	nodes := make([]Node, 0)
-	c.Coordinate.Neighbors(func(c *util.Coordinate) {
-		nodes = append(nodes, &Coordinate{c})
-	})
+	directions := []*util.Coordinate{util.NewCoordinate(0, -1), util.NewCoordinate(1, 0), util.NewCoordinate(0, 1), util.NewCoordinate(-1, 0)}
+	for _, direction := range directions {
+		nodes = append(nodes, &Coordinate{c.Add(direction)})
+	}
+
 	return nodes
 }
 
