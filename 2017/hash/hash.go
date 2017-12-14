@@ -41,10 +41,18 @@ func (hash Hash) reverse(start, end int) {
 	}
 }
 
+func (hash Hash) Hash() []byte {
+	b := make([]byte, 16)
+	for i := 0; i < 255; i += 16 {
+		b[i/16] = xor(hash[i : i+16])
+	}
+	return b
+}
+
 func (hash Hash) String() string {
 	var buf bytes.Buffer
-	for i := 0; i < 255; i += 16 {
-		buf.WriteString(fmt.Sprintf("%02x", xor(hash[i:i+16])))
+	for _, b := range hash.Hash() {
+		buf.WriteString(fmt.Sprintf("%02x", b))
 	}
 	return buf.String()
 }
