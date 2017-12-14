@@ -1,4 +1,4 @@
-package main
+package hash
 
 import (
 	"reflect"
@@ -22,12 +22,12 @@ func TestGetSet(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		value := input.Get(i)
+		value := input.get(i)
 		if test.expected != value {
 			t.Errorf("tests[%d] expected %d got %d", i, test.expected, value)
 		}
 
-		input.Set(i, value+5)
+		input.set(i, value+5)
 	}
 
 	expected := []byte{10, 11, 7, 8, 9, 10}
@@ -51,7 +51,7 @@ func TestReverse(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		list.Reverse(test.start, test.end)
+		list.reverse(test.start, test.end)
 		if !reflect.DeepEqual(test.expected, []byte(list)) {
 			t.Errorf("tests[%d] expected %+v got %v", i, test.expected, []byte(list))
 		}
@@ -74,7 +74,7 @@ func TestXor(t *testing.T) {
 	}
 }
 
-func TestHash(t *testing.T) {
+func TestComputeString(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
@@ -86,7 +86,8 @@ func TestHash(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		str := hash(test.input)
+		hash := ComputeString(test.input)
+		str := hash.String()
 		if str != test.expected {
 			t.Errorf("tests[%d] expected %q got %q", i, test.expected, str)
 		}
