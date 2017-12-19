@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/abates/AdventOfCode/2017/graph"
@@ -19,14 +18,13 @@ func buildGraph(input string) *graph.Graph {
 		}
 
 		fields := strings.Split(line, "<->")
-		pid, _ := strconv.Atoi(strings.TrimSpace(fields[0]))
+		pid := strings.TrimSpace(fields[0])
 
 		program := graph.FindOrCreateVertex(pid)
 
 		for _, field := range strings.Split(fields[1], ",") {
 			field = strings.TrimSpace(field)
-			c, _ := strconv.Atoi(field)
-			vertex := graph.FindOrCreateVertex(c)
+			vertex := graph.FindOrCreateVertex(field)
 			program.Connect(vertex)
 		}
 	}
@@ -38,7 +36,7 @@ func main() {
 	f, _ := os.Open("../input.txt")
 	b, _ := ioutil.ReadAll(f)
 	graph := buildGraph(string(b))
-	program := graph.FindOrCreateVertex(0)
+	program := graph.FindOrCreateVertex("0")
 	if program != nil {
 		connected := program.Connected()
 		fmt.Printf("Vertex 0 has %d directly connected programs\n", len(program.Edges))
@@ -48,7 +46,7 @@ func main() {
 	}
 
 	numGroups := 0
-	assignedVertices := make(map[int]bool)
+	assignedVertices := make(map[string]bool)
 	for _, vertex := range graph.Vertices {
 		if found := assignedVertices[vertex.ID]; !found {
 			numGroups++

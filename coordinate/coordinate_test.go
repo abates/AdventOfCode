@@ -1,4 +1,4 @@
-package util
+package coordinate
 
 import (
 	"fmt"
@@ -20,8 +20,8 @@ func TestManhattanDistance(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		start := NewCoordinate(test.x1, test.y1)
-		end := NewCoordinate(test.x2, test.y2)
+		start := New(test.x1, test.y1)
+		end := New(test.x2, test.y2)
 
 		d := ManhattanDistance(start, end)
 		if d != test.expected {
@@ -53,11 +53,11 @@ func TestAddSubtractCoordinates(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		coord := NewCoordinate(test.x, test.y)
-		diffX := NewCoordinate(test.diffX, test.diffY)
+		coord := New(test.x, test.y)
+		diffX := New(test.diffX, test.diffY)
 
 		result := coord.Add(diffX)
-		expected := NewCoordinate(test.addX, test.addY)
+		expected := New(test.addX, test.addY)
 
 		str := fmt.Sprintf("(%d,%d)", test.x, test.y)
 		if str != coord.String() {
@@ -69,7 +69,7 @@ func TestAddSubtractCoordinates(t *testing.T) {
 		}
 
 		result = coord.Subtract(diffX)
-		expected = NewCoordinate(test.subX, test.subY)
+		expected = New(test.subX, test.subY)
 
 		if !result.Equal(expected) {
 			t.Errorf("tests[%d] Subtract expected %s got %s", i, expected, result)
@@ -79,12 +79,12 @@ func TestAddSubtractCoordinates(t *testing.T) {
 
 /*
 func TestNeighborsDiagonals(t *testing.T) {
-	coordinate := NewCoordinate(0, 0)
+	coordinate := New(0, 0)
 	expectedNeighbors := [4]*Coordinate{
-		NewCoordinate(0, -1),
-		NewCoordinate(1, 0),
-		NewCoordinate(0, 1),
-		NewCoordinate(-1, 0),
+		New(0, -1),
+		New(1, 0),
+		New(0, 1),
+		New(-1, 0),
 	}
 
 	var neighbors [4]Coordinate
@@ -99,10 +99,10 @@ func TestNeighborsDiagonals(t *testing.T) {
 	}
 
 	expectedDiagonals := [4]*Coordinate{
-		NewCoordinate(-1, 1),
-		NewCoordinate(1, 1),
-		NewCoordinate(1, -1),
-		NewCoordinate(-1, -1),
+		New(-1, 1),
+		New(1, 1),
+		New(1, -1),
+		New(-1, -1),
 	}
 
 	var diagonals [4]Coordinate

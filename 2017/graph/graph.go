@@ -1,23 +1,29 @@
 package graph
 
 type Edge struct {
+	ID      string
 	Vertex1 *Vertex
 	Vertex2 *Vertex
 }
 
 type Vertex struct {
-	ID    int
+	ID    string
 	Edges []*Edge
 }
 
-func (v *Vertex) Connect(other *Vertex) {
-	edge := &Edge{v, other}
-	v.Edges = append(v.Edges, edge)
-	other.Edges = append(other.Edges, edge)
+func NewVertex(id string) *Vertex {
+	return &Vertex{ID: id}
 }
 
-func (v *Vertex) Connected() map[int]*Vertex {
-	visited := make(map[int]*Vertex)
+func (v *Vertex) Connect(other *Vertex) *Edge {
+	edge := &Edge{Vertex1: v, Vertex2: other}
+	v.Edges = append(v.Edges, edge)
+	other.Edges = append(other.Edges, edge)
+	return edge
+}
+
+func (v *Vertex) Connected() map[string]*Vertex {
+	visited := make(map[string]*Vertex)
 	visited[v.ID] = v
 	queue := []*Vertex{v}
 	for len(queue) > 0 {
@@ -38,16 +44,16 @@ func (v *Vertex) Connected() map[int]*Vertex {
 }
 
 type Graph struct {
-	Vertices map[int]*Vertex
+	Vertices map[string]*Vertex
 }
 
 func New() *Graph {
 	return &Graph{
-		Vertices: make(map[int]*Vertex),
+		Vertices: make(map[string]*Vertex),
 	}
 }
 
-func (g *Graph) FindOrCreateVertex(id int) *Vertex {
+func (g *Graph) FindOrCreateVertex(id string) *Vertex {
 	vertex, found := g.Vertices[id]
 	if !found {
 		vertex = &Vertex{ID: id}

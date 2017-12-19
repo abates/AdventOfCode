@@ -6,26 +6,26 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/abates/AdventOfCode/util"
+	"github.com/abates/AdventOfCode/coordinate"
 )
 
 var values = make(map[string]int)
 
-type Direction *util.Coordinate
+type Direction *coordinate.Coordinate
 
 var (
-	North     = Direction(util.NewCoordinate(0, 1))
-	Northeast = Direction(util.NewCoordinate(1, 1))
-	East      = Direction(util.NewCoordinate(1, 0))
-	Southeast = Direction(util.NewCoordinate(1, -1))
-	South     = Direction(util.NewCoordinate(0, -1))
-	Southwest = Direction(util.NewCoordinate(-1, -1))
-	West      = Direction(util.NewCoordinate(-1, 0))
-	Northwest = Direction(util.NewCoordinate(-1, 1))
+	North     = Direction(coordinate.New(0, 1))
+	Northeast = Direction(coordinate.New(1, 1))
+	East      = Direction(coordinate.New(1, 0))
+	Southeast = Direction(coordinate.New(1, -1))
+	South     = Direction(coordinate.New(0, -1))
+	Southwest = Direction(coordinate.New(-1, -1))
+	West      = Direction(coordinate.New(-1, 0))
+	Northwest = Direction(coordinate.New(-1, 1))
 )
 
 type Mover struct {
-	coordinate *util.Coordinate
+	coordinate *coordinate.Coordinate
 	id         int
 }
 
@@ -48,7 +48,7 @@ func main() {
 	dirCount := 0
 	distance := 0
 	directions := []Direction{East, North, West, South}
-	mover := &Mover{util.NewCoordinate(0, 0), 0}
+	mover := &Mover{coordinate.New(0, 0), 0}
 
 	for i := 0; ; i++ {
 		if i%2 == 0 {
@@ -76,7 +76,7 @@ func main() {
 
 			if mover.id == value {
 				fmt.Printf("Now at %s\n", mover.coordinate)
-				fmt.Printf("Distance to get to %d is %d\n", value, util.ManhattanDistance(mover.coordinate, util.NewCoordinate(0, 0)))
+				fmt.Printf("Distance to get to %d is %d\n", value, coordinate.ManhattanDistance(mover.coordinate, coordinate.New(0, 0)))
 				os.Exit(0)
 			}
 

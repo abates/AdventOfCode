@@ -1,15 +1,17 @@
-package util
+package coordinate
 
 import (
 	"fmt"
 	"strings"
+
+	"github.com/abates/AdventOfCode/util"
 )
 
 func ManhattanDistance(c1, c2 *Coordinate) int {
 	d := c1.Subtract(c2)
 	distance := 0
 	for _, coordinate := range d.Coordinates {
-		distance += Abs(coordinate)
+		distance += util.Abs(coordinate)
 	}
 	return distance
 }
@@ -18,7 +20,7 @@ type Coordinate struct {
 	Coordinates []int
 }
 
-func NewCoordinate(coordinates ...int) *Coordinate {
+func New(coordinates ...int) *Coordinate {
 	return &Coordinate{coordinates}
 }
 
@@ -51,6 +53,14 @@ func (c *Coordinate) Subtract(subtrahend *Coordinate) (nextCoordinate *Coordinat
 }
 
 func (c *Coordinate) Equal(other *Coordinate) bool {
+	if c == other {
+		return true
+	}
+
+	if c == nil || other == nil {
+		return false
+	}
+
 	for i, coordinate := range c.Coordinates {
 		if coordinate != other.Coordinates[i] {
 			return false

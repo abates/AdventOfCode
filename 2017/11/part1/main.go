@@ -6,18 +6,19 @@ import (
 	"os"
 	"strings"
 
+	"github.com/abates/AdventOfCode/coordinate"
 	"github.com/abates/AdventOfCode/util"
 )
 
-type Direction *util.Coordinate
+type Direction *coordinate.Coordinate
 
 var (
-	North     = Direction(util.NewCoordinate(0, 1, -1))
-	NorthEast = Direction(util.NewCoordinate(1, 0, -1))
-	SouthEast = Direction(util.NewCoordinate(1, -1, 0))
-	South     = Direction(util.NewCoordinate(0, -1, 1))
-	SouthWest = Direction(util.NewCoordinate(-1, 0, 1))
-	NorthWest = Direction(util.NewCoordinate(-1, 1, 0))
+	North     = Direction(coordinate.New(0, 1, -1))
+	NorthEast = Direction(coordinate.New(1, 0, -1))
+	SouthEast = Direction(coordinate.New(1, -1, 0))
+	South     = Direction(coordinate.New(0, -1, 1))
+	SouthWest = Direction(coordinate.New(-1, 0, 1))
+	NorthWest = Direction(coordinate.New(-1, 1, 0))
 
 	Directions = map[string]Direction{
 		"n":  North,
@@ -30,7 +31,7 @@ var (
 )
 
 type Mover struct {
-	coordinate *util.Coordinate
+	coordinate *coordinate.Coordinate
 }
 
 func (m *Mover) Move(direction Direction) {
@@ -46,7 +47,7 @@ func distance(mover *Mover) int {
 }
 
 func positionChild(input string) (*Mover, int) {
-	m := &Mover{util.NewCoordinate(0, 0, 0)}
+	m := &Mover{coordinate.New(0, 0, 0)}
 	maxDistance := 0
 	for _, direction := range strings.Split(input, ",") {
 		direction = strings.TrimSpace(direction)

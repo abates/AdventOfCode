@@ -35,7 +35,7 @@ func NewDisk() *Disk {
 
 func (d *Disk) Groups() int {
 	count := 0
-	visited := make(map[int]bool)
+	visited := make(map[string]bool)
 	for id, vertex := range d.graph.Vertices {
 		if found := visited[id]; !found {
 			count++
@@ -65,17 +65,17 @@ func (d *Disk) Append(buf []byte) {
 	for x := 0; x < row.Len(); x++ {
 		id := y*row.Len() + x
 		if row.Bit(x) > 0 {
-			vertex := d.graph.FindOrCreateVertex(id)
+			vertex := d.graph.FindOrCreateVertex(fmt.Sprintf("%d", id))
 			if y > 0 {
 				prevId := (y-1)*row.Len() + x
 				prevRow := d.rows[y-1]
 				if prevRow.Bit(x) > 0 {
-					vertex.Connect(d.graph.FindOrCreateVertex(prevId))
+					vertex.Connect(d.graph.FindOrCreateVertex(fmt.Sprintf("%d", prevId)))
 				}
 			}
 			if x > 0 {
 				if row.Bit(x-1) > 0 {
-					vertex.Connect(d.graph.FindOrCreateVertex(id - 1))
+					vertex.Connect(d.graph.FindOrCreateVertex(fmt.Sprintf("%d", id-1)))
 				}
 			}
 		}
