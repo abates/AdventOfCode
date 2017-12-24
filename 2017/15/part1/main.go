@@ -39,7 +39,6 @@ func Match(value1, value2 int) bool {
 func CountMatches(genA, genB *Generator, limit int) int {
 	count := 0
 	for i := 0; i < limit; i++ {
-		fmt.Printf("%d\r", i)
 		value1 := genA.Next()
 		value2 := genB.Next()
 		if Match(value1, value2) {
