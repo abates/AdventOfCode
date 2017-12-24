@@ -83,14 +83,12 @@ func (d *Disk) Append(buf []byte) {
 }
 
 func main() {
-	//input := "flqrgnkx"
-	//input := "a0c2017..."
 	input := "jxqlasbh"
 	disk := NewDisk()
 	for i := 0; i < 128; i++ {
 		disk.Append([]byte(hash.ComputeString(fmt.Sprintf("%s-%d", input, i)).Hash()))
 	}
-	fmt.Printf("%d\n", disk.Count())
+	fmt.Printf("Part 1: %d\n", disk.Count())
 
-	fmt.Printf("Groups: %d\n", disk.Groups())
+	fmt.Printf("Part 2: %d\n", disk.Groups())
 }
