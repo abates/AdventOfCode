@@ -5,38 +5,43 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 )
 
+type Move struct {
+	x int
+	y int
+}
+
 type Path struct {
-	moves [][]int
+	length int
+	first  Move
+	last   Move
+}
+
+func (p *Path) Length() int {
+	return p.length
 }
 
 func (p *Path) Copy() *Path {
-	newPath := &Path{}
-	newPath.moves = make([][]int, len(p.moves))
-	for i, c := range p.moves {
-		newPath.moves[i] = []int{c[0], c[1]}
+	newPath := &Path{
+		length: p.length,
+		first:  p.first,
+		last:   p.last,
 	}
-
 	return newPath
 }
 
-func (p *Path) Last() []int {
-	return p.moves[len(p.moves)-1]
+func (p *Path) Last() Move {
+	return p.last
 }
 
 func (p *Path) Append(x, y int) *Path {
-	p.moves = append(p.moves, []int{x, y})
-	return p
-}
-
-func (p *Path) String() string {
-	moves := []string{}
-	for _, move := range p.moves {
-		moves = append(moves, fmt.Sprintf("(%d,%d)", move[0], move[1]))
+	if p.length == 1 {
+		p.first = Move{x, y}
 	}
-	return fmt.Sprintf("[%s]", strings.Join(moves, ", "))
+	p.length++
+	p.last = Move{x, y}
+	return p
 }
 
 type Thing interface {
@@ -45,7 +50,7 @@ type Thing interface {
 
 type LayoutThing rune
 
-func (lt LayoutThing) String() string { return fmt.Sprintf("%c", rune(lt)) }
+func (lt LayoutThing) String() string { return string([]rune{rune(lt)}) }
 
 var (
 	Wall  = LayoutThing('#')
@@ -61,7 +66,7 @@ type Player struct {
 	gm    *GameBoard
 }
 
-func (p *Player) String() string { return fmt.Sprintf("%c", p.t) }
+func (p *Player) String() string { return string([]rune{p.t}) }
 
 func (p *Player) WithinRange() (enemy *Player) {
 	for _, c := range [][]int{{0, -1}, {-1, 0}, {1, 0}, {0, 1}} {
@@ -108,7 +113,7 @@ func (p *Player) Move(enemies []*Player) error {
 
 			path := p.gm.ShortestPath(p.x, p.y, enemy.x+delta[0], enemy.y+delta[1])
 			//fmt.Printf("Candidate: %+v\n", path)
-			distance := len(path.moves)
+			distance := path.Length()
 			if distance <= 1 {
 				continue
 			}
@@ -122,9 +127,9 @@ func (p *Player) Move(enemies []*Player) error {
 
 	if minPath != nil {
 		//fmt.Printf("Winning Path: %+v\n", minPath)
-		p.gm.Move(p, minPath.moves[1][0], minPath.moves[1][1])
-		p.x = minPath.moves[1][0]
-		p.y = minPath.moves[1][1]
+		p.gm.Move(p, minPath.first.x, minPath.first.y)
+		p.x = minPath.first.x
+		p.y = minPath.first.y
 		p.Attack()
 	}
 
@@ -166,9 +171,13 @@ func (gm *GameBoard) Kill(player *Player) {
 }
 
 func (gm *GameBoard) ShortestPath(fromX, fromY, toX, toY int) (path *Path) {
-	visited := make(map[string]struct{})
+	visited := make([][]bool, len(gm.layout))
+	for i, row := range gm.layout {
+		visited[i] = make([]bool, len(row))
+	}
+
 	// stack of x,y coordinates
-	path = &Path{moves: [][]int{{fromX, fromY}}}
+	path = &Path{last: Move{fromX, fromY}, length: 1}
 	pathStack := []*Path{
 		path.Copy().Append(fromX, fromY-1),
 		path.Copy().Append(fromX-1, fromY),
@@ -179,27 +188,25 @@ func (gm *GameBoard) ShortestPath(fromX, fromY, toX, toY int) (path *Path) {
 	for len(pathStack) > 0 {
 		path := pathStack[0]
 		pathStack = pathStack[1:]
-		//fmt.Printf("Path: %+v\n", path)
-		curX := path.Last()[0]
-		curY := path.Last()[1]
+		cur := path.Last()
 
-		if curX == toX && curY == toY {
+		if cur.x == toX && cur.y == toY {
 			return path
 		}
 
-		if gm.layout[curY][curX] != Empty {
+		if gm.layout[cur.y][cur.x] != Empty {
 			continue
 		}
 
-		if _, found := visited[fmt.Sprintf("(%d,%d)", curX, curY)]; found {
+		if visited[cur.y][cur.x] {
 			continue
 		}
-		visited[fmt.Sprintf("(%d,%d)", curX, curY)] = struct{}{}
+		visited[cur.y][cur.x] = true
 
-		pathStack = append(pathStack, path.Copy().Append(curX, curY-1))
-		pathStack = append(pathStack, path.Copy().Append(curX-1, curY))
-		pathStack = append(pathStack, path.Copy().Append(curX+1, curY))
-		pathStack = append(pathStack, path.Copy().Append(curX, curY+1))
+		pathStack = append(pathStack, path.Copy().Append(cur.x, cur.y-1))
+		pathStack = append(pathStack, path.Copy().Append(cur.x-1, cur.y))
+		pathStack = append(pathStack, path.Copy().Append(cur.x+1, cur.y))
+		pathStack = append(pathStack, path.Copy().Append(cur.x, cur.y+1))
 	}
 	return &Path{}
 }
@@ -275,6 +282,7 @@ func hitPoints(players []*Player) int {
 
 func (gm *GameBoard) Play() (round, points int, winner string) {
 	for round = 1; ; round++ {
+		//fmt.Printf("%s\n", gm.String())
 		elves, goblins, err := gm.Advance()
 		if err != nil {
 			round--
@@ -354,11 +362,11 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Failed to read input file: %v\n", err)
 		os.Exit(-1)
 	}
-	/*err = part1(input)
+	err = part1(input)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to perform part 1: %v\n", err)
 		os.Exit(-1)
-	}*/
+	}
 
 	err = part2(input)
 	if err != nil {
