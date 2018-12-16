@@ -4,8 +4,42 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strings"
 )
+
+type Set map[string]struct{}
+
+func (set Set) Add(str string) { set[str] = struct{}{} }
+
+func (set Set) Intersection(other Set) Set {
+	intersection := make(Set)
+	for k := range set {
+		if _, found := other[k]; found {
+			intersection[k] = struct{}{}
+		}
+	}
+	return intersection
+}
+
+func (set Set) Delete(str string) {
+	delete(set, str)
+}
+
+func (set Set) Len() int { return len(set) }
+
+func (set Set) ToA() []string {
+	values := []string{}
+	for k := range set {
+		values = append(values, k)
+	}
+	sort.Strings(values)
+	return values
+}
+
+func (set Set) String() string {
+	return fmt.Sprintf("[%s]", strings.Join(set.ToA(), ", "))
+}
 
 type Registers [4]int
 
@@ -155,15 +189,12 @@ func main() {
 
 	lines := strings.Split(string(input), "\n")
 	numGt3 := 0
-	for i := 0; i < len(lines); {
-		if len(lines[i]) == 0 {
-			i++
-			continue
-		}
+	i := 0
+	candidates := make(map[int]Set)
 
+	for i = 0; i < len(lines); {
 		if !strings.HasPrefix(lines[i], "Before:") {
-			i++
-			continue
+			break
 		}
 
 		var before Registers
@@ -188,22 +219,57 @@ func main() {
 		if err != nil {
 			panic(err.Error())
 		}
-		i++
+		i += 2
 
 		matches := 0
+
+		set := make(Set)
 		for _, op := range []string{"addr", "addi", "mulr", "muli", "banr", "bani", "borr", "bori", "setr", "seti", "gtir", "gtri", "gtrr", "eqir", "eqri", "eqrr"} {
 			alg := &Alg{
 				registers: before,
 			}
 			alg.execute(op, a, b, c)
 			if alg.registers == after {
+				set.Add(op)
 				matches++
 			}
+		}
+
+		if s, found := candidates[opcode]; found {
+			candidates[opcode] = set.Intersection(s)
+		} else {
+			candidates[opcode] = set
 		}
 
 		if matches >= 3 {
 			numGt3++
 		}
 	}
-	fmt.Printf("Num: %d\n", numGt3)
+	fmt.Printf("Part 1: %d\n", numGt3)
+
+	opIndex := make(map[int]string)
+	for len(candidates) > 0 {
+		for opcode, set := range candidates {
+			for _, oc := range opIndex {
+				set.Delete(oc)
+			}
+
+			if set.Len() == 1 {
+				opIndex[opcode] = set.ToA()[0]
+				delete(candidates, opcode)
+				break
+			}
+		}
+	}
+
+	alg := &Alg{}
+	for ; i < len(lines); i++ {
+		if len(lines[i]) == 0 {
+			continue
+		}
+		opcode, a, b, c := 0, 0, 0, 0
+		fmt.Sscanf(lines[i], "%d %d %d %d", &opcode, &a, &b, &c)
+		alg.execute(opIndex[opcode], a, b, c)
+	}
+	fmt.Printf("Part 2: %d\n", alg.registers[0])
 }
