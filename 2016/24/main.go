@@ -1,11 +1,13 @@
 package main
 
 import (
-	"github.com/abates/AdventOfCode/2016/alg"
-	"github.com/abates/AdventOfCode/2016/util"
-	"github.com/cznic/mathutil"
 	"sort"
 	"strings"
+
+	"github.com/abates/AdventOfCode/2016/alg"
+	"github.com/abates/AdventOfCode/2016/util"
+	"github.com/abates/AdventOfCode/graph"
+	"github.com/cznic/mathutil"
 )
 
 type TerminalExplorer struct {
@@ -41,13 +43,13 @@ func (e *Explorer) Neighbors() []alg.Node {
 	maxY := len(e.matrix.walls) - 1
 	for _, node := range e.position.Neighbors() {
 		if coordinate, ok := node.(*alg.Coordinate); ok {
-			if coordinate.X < 0 || coordinate.Y < 0 || coordinate.X > maxX || coordinate.Y > maxY {
+			if coordinate.Get(0) < 0 || coordinate.Get(1) < 0 || coordinate.Get(0) > maxX || coordinate.Get(1) > maxY {
 				continue
 			}
 
 			if e.matrix.IsNode(coordinate) {
 				neighbors = append(neighbors, &TerminalExplorer{coordinate, e.matrix.GetNode(coordinate).Name()})
-			} else if !e.matrix.walls[coordinate.Y][coordinate.X] {
+			} else if !e.matrix.walls[coordinate.Get(1)][coordinate.Get(0)] {
 				neighbors = append(neighbors, &Explorer{coordinate, e.matrix, ""})
 			}
 		}
@@ -61,16 +63,16 @@ type Matrix struct {
 }
 
 func (m *Matrix) IsNode(coordinate *alg.Coordinate) bool {
-	if _, found := m.nodes[coordinate.Y]; found {
-		_, found = m.nodes[coordinate.Y][coordinate.X]
+	if _, found := m.nodes[coordinate.Get(1)]; found {
+		_, found = m.nodes[coordinate.Get(1)][coordinate.Get(0)]
 		return found
 	}
 	return false
 }
 
 func (m *Matrix) GetNode(coordinate *alg.Coordinate) *Explorer {
-	if _, found := m.nodes[coordinate.Y]; found {
-		return m.nodes[coordinate.Y][coordinate.X]
+	if _, found := m.nodes[coordinate.Get(1)]; found {
+		return m.nodes[coordinate.Get(1)][coordinate.Get(0)]
 	}
 	return nil
 }
@@ -94,12 +96,12 @@ func main() {
 				if _, found := matrix.nodes[y]; !found {
 					matrix.nodes[y] = make(map[int]*Explorer)
 				}
-				matrix.nodes[y][x] = &Explorer{&alg.Coordinate{x, y}, matrix, t}
+				matrix.nodes[y][x] = &Explorer{alg.NewCoordinate(x, y), matrix, t}
 			}
 		}
 	}
 
-	graph := alg.NewBasicGraph()
+	g := &graph.BasicGraph{}
 	nodeIds := make([]string, 0)
 	for _, row := range matrix.nodes {
 		for _, explorer := range row {
@@ -107,12 +109,7 @@ func main() {
 			alg.Traverse(explorer, func(l int, path []alg.Node) bool {
 				switch neighbor := path[len(path)-1].(type) {
 				case *TerminalExplorer:
-					node := graph.GetNode(explorer.Name())
-					if node == nil {
-						node = alg.NewBasicGraphNode(explorer.Name())
-						graph.AddNode(node)
-					}
-					node.(*alg.BasicGraphNode).AddEdge(alg.NewBasicEdge(len(path)-1, matrix.GetNode(neighbor.Coordinate).Name()))
+					g.AddDirectedEdge(explorer.Name(), matrix.GetNode(neighbor.Coordinate).Name(), len(path)-1)
 				case *Explorer:
 				}
 				return false
@@ -120,7 +117,7 @@ func main() {
 		}
 	}
 
-	distances := alg.SPFAll(graph)
+	distances := graph.SPFAll(g)
 
 	min := 0
 	ids := sort.StringSlice(nodeIds)
@@ -128,10 +125,10 @@ func main() {
 		node := "0"
 		distance := 0
 		for _, id := range ids {
-			distance += distances[node][id]
+			distance += distances[g.GetNode(node)][g.GetNode(id)]
 			node = id
 		}
-		distance += distances[node]["0"]
+		distance += distances[g.GetNode(node)][g.GetNode("0")]
 
 		if min == 0 || distance < min {
 			min = distance

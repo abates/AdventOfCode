@@ -1,4 +1,4 @@
-package alg
+package graph
 
 import (
 	"bufio"
@@ -41,12 +41,12 @@ func TestSPF(t *testing.T) {
 				node := fields[1]
 				neighbor := fields[2]
 				weight, _ := strconv.Atoi(fields[3])
-				if _, found := graph.nodes[node]; !found {
-					graph.AddNode(NewBasicGraphNode(node))
+				if _, found := distances[node]; !found {
 					distances[node] = make(map[string]int)
 					distances[node][node] = 0
 				}
-				graph.nodes[node].(*BasicGraphNode).AddEdge(NewBasicEdge(weight, neighbor))
+
+				graph.AddDirectedEdge(node, neighbor, weight)
 			case "d":
 				node := fields[1]
 				neighbor := fields[2]
@@ -57,8 +57,18 @@ func TestSPF(t *testing.T) {
 		}
 
 		spf := SPFAll(graph)
-		if !reflect.DeepEqual(spf, distances) {
-			t.Errorf("tests[%s] expected %v got %v", filename, distances, spf)
+		got := make(map[string]map[string]int)
+		for node1, spf := range spf {
+			if _, found := got[node1.(*BasicNode).id]; !found {
+				got[node1.(*BasicNode).id] = make(map[string]int)
+			}
+			for node2, distance := range spf {
+				got[node1.(*BasicNode).id][node2.(*BasicNode).id] = distance
+			}
+		}
+
+		if !reflect.DeepEqual(got, distances) {
+			t.Errorf("tests[%s] expected %v got %v", filename, distances, got)
 		}
 	}
 }

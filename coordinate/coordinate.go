@@ -24,6 +24,8 @@ func New(coordinates ...int) *Coordinate {
 	return &Coordinate{coordinates}
 }
 
+func (c *Coordinate) Get(i int) int { return c.Coordinates[i] }
+
 func (c *Coordinate) String() string {
 	str := make([]string, len(c.Coordinates))
 	for i, coordinate := range c.Coordinates {
