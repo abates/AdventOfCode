@@ -337,11 +337,11 @@ func part2(input []byte) error {
 		startElves := len(gm.Elves())
 		if err == nil {
 			round, points, winner := gm.Play()
-			fmt.Printf("%v\n", gm.String())
-			fmt.Printf("Combat ends after %d full rounds\n", round)
-			fmt.Printf("%s win with %d total hit points left\n", winner, points)
-			fmt.Printf("Outcome: %d x %d = %d\n", round, points, round*points)
 			if winner == "Elves" && len(gm.Elves()) == startElves {
+				fmt.Printf("%v\n", gm.String())
+				fmt.Printf("Combat ends after %d full rounds\n", round)
+				fmt.Printf("%s win with %d total hit points left\n", winner, points)
+				fmt.Printf("Outcome: %d x %d = %d\n", round, points, round*points)
 				return nil
 			}
 		} else {
