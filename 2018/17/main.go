@@ -208,7 +208,6 @@ func part1(input []byte) error {
 	if err == nil {
 		slice.Fill()
 		filled := slice.Filled()
-		fmt.Printf("%s\n", slice.String())
 		fmt.Printf("Part 1: %d\n", filled)
 	}
 	return err
@@ -220,7 +219,6 @@ func part2(input []byte) error {
 	if err == nil {
 		slice.Fill()
 		atRest := slice.AtRest()
-		fmt.Printf("%s\n", slice.String())
 		fmt.Printf("Part 2: %d\n", atRest)
 	}
 	return err

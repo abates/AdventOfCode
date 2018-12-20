@@ -19,12 +19,12 @@ func (land *Landscape) UnmarshalText(text []byte) error {
 	return nil
 }
 
-func (land *Landscape) Advance(minutes int) (count int) {
+func (land *Landscape) Advance(minutes int) {
 	repeating := false
 	index := make(map[string]int)
 	index[land.String()] = 0
 
-	for count = 0; count < minutes; count++ {
+	for count := 0; count < minutes; count++ {
 		land.advance()
 		if c, found := index[land.String()]; !repeating && found {
 			period := count - c
@@ -36,7 +36,7 @@ func (land *Landscape) Advance(minutes int) (count int) {
 			index[land.String()] = count
 		}
 	}
-	return count
+	return
 }
 
 func (land *Landscape) String() string {
