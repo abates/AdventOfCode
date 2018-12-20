@@ -1,0 +1,49 @@
+# Counting up to 10551430
+
+#ip 5
+ 0: addi 5 16 5 # Jump to 17
+ 1:   seti 1 8 4
+    # for
+ 2:   seti 1 5 3 
+      # for
+ 3:     mulr 4 3 1 # registers[1] = registers[4] * registers[3]
+ 4:     eqrr 1 2 1 # if registers[1] == registers[2]
+ 5:     addr 1 5 5 #  Jump to 7 is this an If statement?
+                   # else
+ 6:     addi 5 1 5 #  Jump to 8
+ 7:     addr 4 0 0 # registers[0] += registers[4]
+ 8:     addi 3 1 3 # Increment register 3
+ 9:     gtrr 3 2 1 # if registers[3] > registers[2]
+10:     addr 5 1 5 #   Jump 12
+                   # else
+11:     seti 2 5 5 #  registers[5] = 2 (Jump 3)
+      # end for
+12:   addi 4 1 4 # registers[4] += 1
+13:   gtrr 4 2 1 # if registers[4] > registers[2]
+14:   addr 1 5 5 #  Jump 16
+    # End For
+15: seti 1 2 5 # Jump 2
+16: mulr 5 5 5 # END PROGRAM
+
+
+# BEGIN VARIABLE INITIALIZATION
+17: addi 2 2 2 # registers[2] = 2
+18: mulr 2 2 2 # registers[2] *= 2 (registers[2] = 4)
+19: mulr 5 2 2 # registers[2] = 19 * 4 = 76
+20: muli 2 11 2 # registers[2] = 76 * 11 = 836
+21: addi 1 8 1 # registers[1] = 8
+22: mulr 1 5 1 # registers[1] = 176
+23: addi 1 18 1 # registers[1] = 194
+24: addr 2 1 2 # registers[2] = 1030
+25: addr 5 0 5 # registers[5] = 26 # JUMP 27
+26: seti 0 7 5 # registers[5] = 0 # Jump 1  // Part 1 starts here with registers[1] = 194 registers[2] = 1030
+27: setr 5 0 1 # registers[1] = 27
+28: mulr 1 5 1 # registers[1] = 756
+29: addr 5 1 1 # registers[1] = 785
+30: mulr 5 1 1 # registers[1] = 23550
+31: muli 1 14 1 # registers[2] = 329700
+32: mulr 1 5 1 # registers[1] = 10550400
+33: addr 2 1 2 # registers[2] = 10551430
+34: seti 0 0 0 # clear registers[0]
+35: seti 0 9 5 # Jump 1 // Part 2 starts here with registers[1] = 10550400 and
+registers[2] = 10551430
