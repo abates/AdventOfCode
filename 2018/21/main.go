@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 
 	"github.com/abates/AdventOfCode/2018/tm"
 )
 
-func part1(input []byte, register0 int) error {
+func part1(input []byte) error {
 	program := tm.Program{}
 	err := program.UnmarshalText(input)
 	if err == nil {
 		machine := tm.NewMachine()
 		seen := make(map[int]struct{})
 		lastSeen := 0
-		machine.Execute(tm.Registers{register0, 0, 0, 0, 0, 0}, program, func() bool {
+		machine.Execute(tm.Registers{0, 0, 0, 0, 0, 0}, program, func() bool {
 			if machine.IP == 28 {
 				if len(seen) == 0 {
 					fmt.Printf("Part 1: %d\n", machine.Registers[4])
@@ -34,8 +33,8 @@ func part1(input []byte, register0 int) error {
 }
 
 func main() {
-	if len(os.Args) < 3 {
-		fmt.Fprintf(os.Stderr, "usage: %s <input file> <register 0 value>\n", os.Args[0])
+	if len(os.Args) < 2 {
+		fmt.Fprintf(os.Stderr, "usage: %s <input file>\n", os.Args[0])
 		os.Exit(-1)
 	}
 
@@ -45,13 +44,7 @@ func main() {
 		os.Exit(-1)
 	}
 
-	register0, err := strconv.Atoi(os.Args[2])
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Invalid value for register 0: %v\n", err)
-		os.Exit(-1)
-	}
-
-	err = part1(input, register0)
+	err = part1(input)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Part 1 failed: %v\n", err)
 		os.Exit(-1)
