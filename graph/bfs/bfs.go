@@ -4,16 +4,31 @@ import (
 	"github.com/abates/AdventOfCode/graph"
 )
 
-type PathNode struct {
-	path []graph.Node
+type Path struct {
+	level int
+	prev  *Path
+	node  graph.Node
 }
 
-func (p *PathNode) Node() graph.Node {
-	return p.path[len(p.path)-1]
+func (p *Path) Append(node graph.Node) *Path {
+	return &Path{
+		level: p.level + 1,
+		prev:  p,
+		node:  node,
+	}
+}
+
+func (p *Path) Path() []graph.Node {
+	path := []graph.Node{p.node}
+	for p.prev != nil {
+		path = append([]graph.Node{p.node}, path...)
+		p = p.prev
+	}
+	return path
 }
 
 type NodeQueue struct {
-	queue []*PathNode
+	queue []*Path
 }
 
 func (n *NodeQueue) Len() int {
@@ -23,23 +38,23 @@ func (n *NodeQueue) Len() int {
 func (n *NodeQueue) Nodes() []graph.Node {
 	nodes := make([]graph.Node, len(n.queue))
 	for i, item := range n.queue {
-		nodes[i] = item.Node()
+		nodes[i] = item.node
 	}
 	return nodes
 }
 
-func (n *NodeQueue) Peek() (node *PathNode) {
+func (n *NodeQueue) Peek() (node *Path) {
 	if len(n.queue) > 0 {
 		node = n.queue[0]
 	}
 	return
 }
 
-func (n *NodeQueue) Push(nodes ...*PathNode) {
+func (n *NodeQueue) Push(nodes ...*Path) {
 	n.queue = append(n.queue, nodes...)
 }
 
-func (n *NodeQueue) Shift() (node *PathNode) {
+func (n *NodeQueue) Shift() (node *Path) {
 	if len(n.queue) > 0 {
 		node = n.queue[0]
 		n.queue = n.queue[1:]
@@ -47,13 +62,13 @@ func (n *NodeQueue) Shift() (node *PathNode) {
 	return
 }
 
-type VisitFn func(int, []graph.Node) bool
+type VisitFn func(int, *Path) bool
 
 func TraverseLevel(rootNode graph.Node, level int) []graph.Node {
 	nodes := make([]graph.Node, 0)
-	Traverse(rootNode, func(l int, path []graph.Node) bool {
+	Traverse(rootNode, func(l int, path *Path) bool {
 		if l == level {
-			nodes = append(nodes, path[len(path)-1])
+			nodes = append(nodes, path.node)
 		}
 		return l == level+1
 	})
@@ -63,16 +78,17 @@ func TraverseLevel(rootNode graph.Node, level int) []graph.Node {
 
 func Height(rootNode graph.Node) int {
 	level := 0
-	Traverse(rootNode, func(l int, node []graph.Node) bool {
+	Traverse(rootNode, func(l int, path *Path) bool {
 		level = l
 		return false
 	})
 	return level
 }
 
-func Find(rootNode graph.Node, node graph.Node) (path []graph.Node) {
-	Traverse(rootNode, func(l int, p []graph.Node) bool {
-		if idable1, ok := p[len(p)-1].(graph.IDAble); ok {
+func Find(rootNode graph.Node, node graph.Node) []graph.Node {
+	var path *Path
+	Traverse(rootNode, func(l int, p *Path) bool {
+		if idable1, ok := p.node.(graph.IDAble); ok {
 			if idable2, ok := node.(graph.IDAble); ok {
 				if idable1.ID() == idable2.ID() {
 					path = p
@@ -81,25 +97,23 @@ func Find(rootNode graph.Node, node graph.Node) (path []graph.Node) {
 			}
 		}
 
-		if p[len(p)-1] == node {
+		if p.node == node {
 			path = p
 			return true
 		}
 		return false
 	})
-	return path
+	return path.Path()
 }
 
 func Traverse(rootNode graph.Node, visit VisitFn) {
 	visited := make(map[interface{}]struct{})
 	q := NodeQueue{
-		queue: make([]*PathNode, 0),
+		queue: make([]*Path, 0),
 	}
 
 	position := rootNode
-	q.Push(&PathNode{
-		path: []graph.Node{position},
-	})
+	q.Push(&Path{node: position, level: 1})
 	if idable, ok := position.(graph.IDAble); ok {
 		visited[idable.ID()] = struct{}{}
 	} else {
@@ -107,13 +121,13 @@ func Traverse(rootNode graph.Node, visit VisitFn) {
 	}
 
 	for q.Len() > 0 {
-		level := len(q.Peek().path) - 1
-		if visit(level, q.Peek().path) {
+		level := q.Peek().level - 1
+		if visit(level, q.Peek()) {
 			return
 		}
 
 		nextNode := q.Shift()
-		position = nextNode.Node()
+		position = nextNode.node
 
 		for _, edge := range position.Edges() {
 			node := edge.Neighbor()
@@ -123,12 +137,8 @@ func Traverse(rootNode graph.Node, visit VisitFn) {
 				id = idable.ID()
 			}
 			if _, found := visited[id]; !found {
-				n := &PathNode{
-					path: make([]graph.Node, len(nextNode.path)+1),
-				}
-				copy(n.path, nextNode.path)
-				n.path[len(n.path)-1] = node
-				q.Push(n)
+				p := nextNode.Append(node)
+				q.Push(p)
 				visited[id] = struct{}{}
 			}
 		}

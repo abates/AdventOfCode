@@ -42,8 +42,8 @@ func TestTraverse(t *testing.T) {
 
 	for i, test := range tests {
 		var result []graph.Node
-		Traverse(NewCoordinate(test.startX, test.startY), func(l int, path []graph.Node) bool {
-			result = path
+		Traverse(NewCoordinate(test.startX, test.startY), func(l int, path *Path) bool {
+			result = path.Path()
 			return result[len(result)-1].(*Coordinate).Equal(test.destination)
 		})
 

@@ -27,19 +27,24 @@ func (e *Edge) Weight() int          { return 1 }
 func (e *Edge) Neighbor() graph.Node { return e.neighbor }
 
 type Node struct {
-	x    int
-	y    int
-	wait int
-	tool Tool
-	scan *Scan
+	x     int
+	y     int
+	wait  int
+	tool  Tool
+	scan  *Scan
+	edges []graph.Edge
 }
 
 func (n *Node) Edges() []graph.Edge {
-	if n.wait > 0 {
-		return []graph.Edge{&Edge{n.scan.lookupNode(n.x, n.y, n.tool, n.wait-1)}}
+	if len(n.edges) > 0 {
+		return n.edges
 	}
 
-	edges := []graph.Edge{}
+	if n.wait > 0 {
+		n.edges = []graph.Edge{&Edge{n.scan.lookupNode(n.x, n.y, n.tool, n.wait-1)}}
+		return n.edges
+	}
+
 	for _, delta := range [][]int{{0, -1}, {1, 0}, {0, 1}, {-1, 0}} {
 		deltaX := delta[0]
 		deltaY := delta[1]
@@ -62,26 +67,14 @@ func (n *Node) Edges() []graph.Edge {
 		for _, tool := range neighborTools {
 			if tool == n.tool {
 				neighbor := n.scan.lookupNode(n.x+deltaX, n.y+deltaY, tool, 0)
-				edges = append(edges, &Edge{neighbor})
+				n.edges = append(n.edges, &Edge{neighbor})
 			} else {
 				neighbor := n.scan.lookupNode(n.x+deltaX, n.y+deltaY, tool, 7)
-				edges = append(edges, &Edge{neighbor})
+				n.edges = append(n.edges, &Edge{neighbor})
 			}
 		}
 	}
-	return edges
-}
-
-func (s *Scan) lookupNode(x, y int, tool Tool, wait int) *Node {
-	node, found := s.nodes[[4]int{x, y, int(tool), wait}]
-	if !found {
-		if s.nodes == nil {
-			s.nodes = make(map[[4]int]*Node)
-		}
-		node = &Node{x: x, y: y, tool: tool, wait: wait, scan: s}
-		s.nodes[[4]int{x, y, int(tool), wait}] = node
-	}
-	return node
+	return n.edges
 }
 
 type Graph struct {
@@ -94,6 +87,18 @@ type Scan struct {
 	nodes    map[[4]int]*Node
 	target   [2]int
 	depth    int
+}
+
+func (s *Scan) lookupNode(x, y int, tool Tool, wait int) *Node {
+	node, found := s.nodes[[4]int{x, y, int(tool), wait}]
+	if !found {
+		if s.nodes == nil {
+			s.nodes = make(map[[4]int]*Node)
+		}
+		node = &Node{x: x, y: y, tool: tool, wait: wait, scan: s}
+		s.nodes[[4]int{x, y, int(tool), wait}] = node
+	}
+	return node
 }
 
 func (s *Scan) UnmarshalText(text []byte) (err error) {
@@ -189,10 +194,7 @@ func (s *Scan) String() string {
 }
 
 func (s *Scan) BuildGraph() *Graph {
-	graph := &Graph{
-		Start: s.lookupNode(0, 0, ToolTorch, 1),
-		End:   s.lookupNode(s.target[0], s.target[1], ToolTorch, 1),
-	}
+	graph := &Graph{}
 	return graph
 }
 
@@ -200,8 +202,9 @@ func part2(input []byte) error {
 	scan := &Scan{}
 	err := scan.UnmarshalText(input)
 	if err == nil {
-		paths := scan.BuildGraph()
-		path := bfs.Find(paths.Start, paths.End)
+		start := scan.lookupNode(0, 0, ToolTorch, 0)
+		end := scan.lookupNode(scan.target[0], scan.target[1], ToolTorch, 0)
+		path := bfs.Find(start, end)
 		fmt.Printf("Part 2: %d\n", len(path)-1)
 	}
 	return err
