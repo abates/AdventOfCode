@@ -13,6 +13,10 @@ func (b *BasicEdge) Weight() int {
 	return b.weight
 }
 
+func NewBasicEdge(weight int, neighbor Node) *BasicEdge {
+	return &BasicEdge{weight, neighbor}
+}
+
 type BasicNode struct {
 	id    string
 	edges []Edge

@@ -1,17 +1,6 @@
 package graph
 
-type Edge interface {
-	Weight() int
-	Neighbor() Node
-}
-
-type Node interface {
-	Edges() []Edge
-}
-
-type Graph interface {
-	Nodes() []Node
-}
+import "fmt"
 
 func SPFAll(graph Graph) map[Node]map[Node]int {
 	distances := make(map[Node]map[Node]int)
@@ -31,6 +20,7 @@ func SPF(graph Graph, rootNode Node) map[Node]int {
 
 	distances[rootNode] = 0
 	for len(q) > 0 {
+		fmt.Printf("q: %d\r", len(q))
 		var next Node
 		for id, node := range q {
 			if next == nil {
