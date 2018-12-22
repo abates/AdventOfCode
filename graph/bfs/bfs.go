@@ -1,8 +1,6 @@
 package bfs
 
 import (
-	"fmt"
-
 	"github.com/abates/AdventOfCode/graph"
 )
 
@@ -74,7 +72,6 @@ func Height(rootNode graph.Node) int {
 
 func Find(rootNode graph.Node, node graph.Node) (path []graph.Node) {
 	Traverse(rootNode, func(l int, p []graph.Node) bool {
-		fmt.Printf("Level: %d\r", l)
 		if idable1, ok := p[len(p)-1].(graph.IDAble); ok {
 			if idable2, ok := node.(graph.IDAble); ok {
 				if idable1.ID() == idable2.ID() {
