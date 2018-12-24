@@ -122,13 +122,6 @@ func (s *Scan) UnmarshalText(text []byte) (err error) {
 	return
 }
 
-func abs(in int) int {
-	if in < 0 {
-		return -1 * in
-	}
-	return in
-}
-
 func (s *Scan) ErosionLevel(x, y int) int {
 	el, found := s.eroLevel[[2]int{x, y}]
 	if !found {
