@@ -5,13 +5,34 @@ import (
 	"testing"
 )
 
+func TestEuclideanDistance(t *testing.T) {
+	tests := []struct {
+		c1   []float64
+		c2   []float64
+		want float64
+	}{
+		{[]float64{2, -1}, []float64{-2, 2}, 5},
+	}
+
+	for _, test := range tests {
+		c1 := New(test.c1...)
+		c2 := New(test.c2...)
+		t.Run(fmt.Sprintf("Euclidean distance between %s and %s", c1, c2), func(t *testing.T) {
+			got := EuclideanDistance(c1, c2)
+			if test.want != got {
+				t.Errorf("Wanted %v got %v", test.want, got)
+			}
+		})
+	}
+}
+
 func TestManhattanDistance(t *testing.T) {
 	tests := []struct {
-		x1       int
-		y1       int
-		x2       int
-		y2       int
-		expected int
+		x1       float64
+		y1       float64
+		x2       float64
+		y2       float64
+		expected float64
 	}{
 		{0, 0, 1, 1, 2},
 		{0, 0, 2, 2, 4},
@@ -25,26 +46,26 @@ func TestManhattanDistance(t *testing.T) {
 
 		d := ManhattanDistance(start, end)
 		if d != test.expected {
-			t.Errorf("tests[%d] expected %d got %d", i, test.expected, d)
+			t.Errorf("tests[%d] expected %f got %f", i, test.expected, d)
 		}
 
-		d = ManhattanDistance(start, end)
+		d = ManhattanDistance(end, start)
 		if d != test.expected {
-			t.Errorf("tests[%d] expected %d got %d", i, test.expected, d)
+			t.Errorf("tests[%d] expected %f got %f", i, test.expected, d)
 		}
 	}
 }
 
 func TestAddSubtractCoordinates(t *testing.T) {
 	tests := []struct {
-		x     int
-		y     int
-		diffX int
-		diffY int
-		addX  int
-		addY  int
-		subX  int
-		subY  int
+		x     float64
+		y     float64
+		diffX float64
+		diffY float64
+		addX  float64
+		addY  float64
+		subX  float64
+		subY  float64
 	}{
 		{1, 1, 0, -1, 1, 0, 1, 2},
 		{1, 1, 0, -1, 1, 0, 1, 2},
@@ -59,9 +80,10 @@ func TestAddSubtractCoordinates(t *testing.T) {
 		result := coord.Add(diffX)
 		expected := New(test.addX, test.addY)
 
-		str := fmt.Sprintf("(%d,%d)", test.x, test.y)
-		if str != coord.String() {
-			t.Errorf("tests[%d] expected %s got %s", i, str, coord.String())
+		wantStr := fmt.Sprintf("(%f,%f)", test.x, test.y)
+		gotStr := fmt.Sprintf("%s", coord)
+		if wantStr != gotStr {
+			t.Errorf("tests[%d] expected %s got %s", i, wantStr, gotStr)
 		}
 
 		if !result.Equal(expected) {
@@ -77,42 +99,52 @@ func TestAddSubtractCoordinates(t *testing.T) {
 	}
 }
 
-/*
-func TestNeighborsDiagonals(t *testing.T) {
-	coordinate := New(0, 0)
-	expectedNeighbors := [4]*Coordinate{
-		New(0, -1),
-		New(1, 0),
-		New(0, 1),
-		New(-1, 0),
+func TestSegmentCoincident(t *testing.T) {
+	tests := []struct {
+		name string
+		s1   *Segment
+		s2   *Segment
+		want bool
+	}{
+		{"true", NewSegment(New(0, 0), New(0, 1)), NewSegment(New(0, 0), New(0, 1)), true},
+		{"false", NewSegment(New(0, 2), New(0, 1)), NewSegment(New(0, 0), New(0, 1)), false},
 	}
 
-	var neighbors [4]Coordinate
-	i := 0
-	coordinate.Neighbors(func(c *Coordinate) {
-		neighbors[i] = c
-		i++
-	})
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			for _, s := range [][]*Segment{{test.s1, test.s2}, {test.s2, test.s1}} {
+				got := s[0].Coincident(s[1])
+				if test.want != got {
+					t.Errorf("Wanted (%v).Coincident(%v) == %v got %v", s[0], s[1], test.want, got)
+				}
+			}
+		})
+	}
+}
 
-	if !reflect.DeepEqual(expectedNeighbors, neighbors) {
-		t.Errorf("Test expected %-v got %-v", expectedNeighbors, neighbors)
+func TestSegmentIntersection(t *testing.T) {
+	tests := []struct {
+		name             string
+		l1               *Segment
+		l2               *Segment
+		wantIntersection Coordinate
+		wantIntersect    bool
+	}{
+		{"does not intersect", NewSegment(New(5, 2, -1), New(6, 0, -4)), NewSegment(New(2, 0, 4), New(3, 2, 3)), nil, false},
+		{"intersect", NewSegment(New(3, 6, 5), New(15, -18, -31)), NewSegment(New(1, -2, 5), New(12, 20, -6)), New(4, 4, 2), true},
 	}
 
-	expectedDiagonals := [4]*Coordinate{
-		New(-1, 1),
-		New(1, 1),
-		New(1, -1),
-		New(-1, -1),
-	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			gotIntersection, gotIntersect := test.l1.Intersection(test.l2)
 
-	var diagonals [4]Coordinate
-	i = 0
-	coordinate.Diagonals(func(c *Coordinate) {
-		diagonals[i] = c
-		i++
-	})
-
-	if !reflect.DeepEqual(expectedDiagonals, diagonals) {
-		t.Errorf("Test expected %-v got %-v", expectedDiagonals, diagonals)
+			if gotIntersect == test.wantIntersect {
+				if gotIntersect && !gotIntersection.Equal(test.wantIntersection) {
+					t.Errorf("Wanted intersection %v got %v", test.wantIntersection, gotIntersection)
+				}
+			} else {
+				t.Errorf("Wanted intersect to be %v got %v", test.wantIntersect, gotIntersect)
+			}
+		})
 	}
-}*/
+}
