@@ -1,0 +1,33 @@
+package main
+
+import "testing"
+
+func Test${.TypeName}Parse(t *testing.T) {
+	tests := []struct {
+    name string
+		input string
+		want  interface{}
+	}{}
+
+	for _, test := range tests {
+		t.Run("Parsing "+test.name, func(t *testing.T) {
+			${.Receiver} := &${.TypeName}{}
+			err := ${.Receiver}.parse(test.input)
+			if err == nil {
+			} else {
+				t.Errorf("Unexpected Error: %v", err)
+			}
+		})
+	}
+}
+
+func Test${.TypeName}Parts(t *testing.T) {
+	tests := []challengeTest{}
+
+	for _, test := range tests {
+    ${.Receiver} := &${.TypeName}{}
+    challenge := &challenge{"Test Day ${.Day}", "", ${.Receiver}.parse, ${.Receiver}.parseFile, ${.Receiver}.part1, ${.Receiver}.part2}
+		t.Run("Parsing "+test.name, testChallenge(challenge, test))
+	}
+}
+

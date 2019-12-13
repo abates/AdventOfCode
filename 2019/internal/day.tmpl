@@ -1,0 +1,25 @@
+package main
+
+func init() {
+	${.Receiver} := &${.TypeName}{}
+	challenges = append(challenges, &challenge{"${.Name}", "input/day${.Day}.txt", ${.Receiver}.parse, ${.Receiver}.parseFile, ${.Receiver}.part1, ${.Receiver}.part2})
+}
+
+type ${.TypeName} struct {
+}
+
+func (${.Receiver} *${.TypeName}) parseFile(lines []string) error {
+	return nil
+}
+
+func (${.Receiver} *${.TypeName}) parse(line string) error {
+	return nil
+}
+
+func (${.Receiver} *${.TypeName}) part1() (string, error) {
+	return "", nil
+}
+
+func (${.Receiver} *${.TypeName}) part2() (string, error) {
+	return "", nil
+}
