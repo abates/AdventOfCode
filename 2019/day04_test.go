@@ -9,17 +9,17 @@ import (
 func TestD4Parse(t *testing.T) {
 	tests := []struct {
 		name    string
-		input   []string
+		input   string
 		wantMin int
 		wantMax int
 	}{
-		{"test 1", []string{"1234-4567"}, 1234, 4567},
+		{"test 1", "1234-4567", 1234, 4567},
 	}
 
 	for _, test := range tests {
 		t.Run("Parsing "+test.name, func(t *testing.T) {
 			d4 := &D4{}
-			err := d4.parseFile(test.input)
+			err := parseFile(test.input, &challenge{"Test day 4", "", d4})
 			if err == nil {
 			} else {
 				t.Errorf("Unexpected Error: %v", err)
@@ -105,7 +105,7 @@ func TestD4Parts(t *testing.T) {
 
 	for _, test := range tests {
 		d4 := &D4{}
-		challenge := &challenge{"Test Day 04", "", nil, d4.parseFile, d4.part1, d4.part2}
+		challenge := &challenge{"Test Day 04", "", d4}
 		t.Run("Parsing "+test.name, testChallenge(challenge, test))
 	}
 }

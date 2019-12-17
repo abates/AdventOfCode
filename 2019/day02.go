@@ -7,7 +7,7 @@ import (
 
 func init() {
 	d2 := &D2{}
-	challenges = append(challenges, &challenge{"Day 02", "input/day02.txt", nil, d2.parseFile, d2.part1, d2.part2})
+	challenges[2] = &challenge{"Day 02", "input/day02.txt", d2}
 }
 
 type D2 struct {

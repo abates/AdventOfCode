@@ -7,7 +7,7 @@ import (
 
 func init() {
 	d1 := &D1{}
-	challenges = append(challenges, &challenge{"Day 01", "input/day01.txt", d1.parse, nil, d1.part1, d1.part2})
+	challenges[1] = &challenge{"Day 01", "input/day01.txt", d1}
 }
 
 // MFR is the Module Fuel Requirement function

@@ -10,7 +10,7 @@ import (
 
 func init() {
 	d3 := &D3{}
-	challenges = append(challenges, &challenge{"Day 03", "input/day03.txt", d3.parse, nil, d3.part1, d3.part2})
+	challenges[3] = &challenge{"Day 03", "input/day03.txt", d3}
 }
 
 type segment struct {
@@ -24,7 +24,7 @@ type wire struct {
 func (w *wire) distance(c coordinate.Coordinate) int {
 	distance := 0
 	for _, segment := range w.segments {
-		if segment.Contains(c) {
+		if segment.Bounds(c) {
 			distance += int(coordinate.ManhattanDistance(segment.Start, c))
 			break
 		}

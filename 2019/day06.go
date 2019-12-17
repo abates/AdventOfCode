@@ -7,7 +7,7 @@ import (
 
 func init() {
 	d6 := &D6{}
-	challenges = append(challenges, &challenge{"Day 06", "input/day06.txt", d6.parse, nil, d6.part1, d6.part2})
+	challenges[6] = &challenge{"Day 06", "input/day06.txt", d6}
 }
 
 type orbitNode struct {

@@ -2,7 +2,7 @@ package main
 
 func init() {
 	${.Receiver} := &${.TypeName}{}
-	challenges = append(challenges, &challenge{"${.Name}", "input/day${.Day}.txt", ${.Receiver}.parse, ${.Receiver}.parseFile, ${.Receiver}.part1, ${.Receiver}.part2})
+	challenges[${.DayNum}] = &challenge{"${.Name}", "input/day${.Day}.txt", ${.Receiver}}
 }
 
 type ${.TypeName} struct {

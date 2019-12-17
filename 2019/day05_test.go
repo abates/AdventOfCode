@@ -7,7 +7,7 @@ func TestD5Parts(t *testing.T) {
 
 	for _, test := range tests {
 		d5 := &D5{}
-		challenge := &challenge{"Test Day 05", "", nil, d5.parseFile, d5.part1, d5.part2}
+		challenge := &challenge{"Test Day 05", "", d5}
 		t.Run("Parsing "+test.name, testChallenge(challenge, test))
 	}
 }

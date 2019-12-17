@@ -70,7 +70,7 @@ func TestD8Parts(t *testing.T) {
 
 	for _, test := range tests {
 		d8 := &D8{width: 2, height: 2}
-		challenge := &challenge{"Test Day 08", "", d8.parse, nil, d8.part1, d8.part2}
+		challenge := &challenge{"Test Day 08", "", d8}
 		t.Run("Parsing "+test.name, testChallenge(challenge, test))
 	}
 }

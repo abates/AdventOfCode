@@ -128,7 +128,7 @@ func TestD3Parts(t *testing.T) {
 
 	for _, test := range tests {
 		d3 := &D3{}
-		challenge := &challenge{"Test Day 03", "", d3.parse, nil, d3.part1, d3.part2}
+		challenge := &challenge{"Test Day 03", "", d3}
 		t.Run("Parsing "+test.name, testChallenge(challenge, test))
 	}
 }

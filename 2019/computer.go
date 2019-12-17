@@ -175,7 +175,6 @@ func (c *Computer) Run() error {
 			return nil
 		}
 
-		//println(i, c.Dump())
 		switch inst.Opcode() {
 		case Add:
 			c.Set(inst.Mode(3), Address(i+3), c.Add(c.Get(inst.Mode(1), Address(i+1)), c.Get(inst.Mode(2), Address(i+2))))

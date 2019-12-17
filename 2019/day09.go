@@ -2,7 +2,7 @@ package main
 
 func init() {
 	d9 := &D9{}
-	challenges = append(challenges, &challenge{"Day 09", "input/day09.txt", nil, d9.parseFile, d9.part1, d9.part2})
+	challenges[9] = &challenge{"Day 09", "input/day09.txt", d9}
 }
 
 type D9 struct {

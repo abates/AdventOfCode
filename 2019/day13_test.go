@@ -2,17 +2,17 @@ package main
 
 import "testing"
 
-func Test${.TypeName}Parse(t *testing.T) {
+func TestD13Parse(t *testing.T) {
 	tests := []struct {
-    name string
+		name  string
 		input string
 		want  interface{}
 	}{}
 
 	for _, test := range tests {
 		t.Run("Parsing "+test.name, func(t *testing.T) {
-			${.Receiver} := &${.TypeName}{}
-			err := parseFile(test.input, &challenge{"Test Day ${.Day}", "", ${.Receiver}})
+			d13 := &D13{}
+			err := parseFile(test.input, &challenge{"Test Day 13", "", d13})
 			if err == nil {
 			} else {
 				t.Errorf("Unexpected Error: %v", err)
@@ -21,13 +21,12 @@ func Test${.TypeName}Parse(t *testing.T) {
 	}
 }
 
-func Test${.TypeName}Parts(t *testing.T) {
+func TestD13Parts(t *testing.T) {
 	tests := []challengeTest{}
 
 	for _, test := range tests {
-    ${.Receiver} := &${.TypeName}{}
-    challenge := &challenge{"Test Day ${.Day}", "", ${.Receiver}}
+		d13 := &D13{}
+		challenge := &challenge{"Test Day 13", "", d13}
 		t.Run("Parsing "+test.name, testChallenge(challenge, test))
 	}
 }
-

@@ -2,7 +2,6 @@ package main
 
 import (
 	"reflect"
-	"strings"
 	"testing"
 )
 
@@ -24,16 +23,14 @@ func TestD6Parse(t *testing.T) {
 	for _, test := range tests {
 		t.Run("Parsing "+test.name, func(t *testing.T) {
 			d6 := &D6{}
-			for _, line := range strings.Split(test.input, "\n") {
-				err := d6.parse(line)
-				if err != nil {
-					t.Errorf("Unexpected error: %v", err)
+			err := parseFile(test.input, &challenge{"Test Day 06", "", d6})
+			if err == nil {
+				got := d6.orbitMap
+				if !reflect.DeepEqual(test.want, got) {
+					t.Errorf("Wanted %v got %v\n", test.want, got)
 				}
-			}
-
-			got := d6.orbitMap
-			if !reflect.DeepEqual(test.want, got) {
-				t.Errorf("Wanted %v got %v\n", test.want, got)
+			} else {
+				t.Errorf("Unexpected error: %v\n", err)
 			}
 		})
 	}
@@ -47,7 +44,7 @@ func TestD6Parts(t *testing.T) {
 
 	for _, test := range tests {
 		d6 := &D6{}
-		challenge := &challenge{"Test Day 06", "", d6.parse, nil, d6.part1, d6.part2}
+		challenge := &challenge{"Test Day 06", "", d6}
 		t.Run("Parsing "+test.name, testChallenge(challenge, test))
 	}
 }

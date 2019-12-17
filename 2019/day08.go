@@ -8,7 +8,7 @@ import (
 
 func init() {
 	d8 := &D8{}
-	challenges = append(challenges, &challenge{"Day 08", "input/day08.txt", d8.parse, nil, d8.part1, d8.part2})
+	challenges[8] = &challenge{"Day 08", "input/day08.txt", d8}
 }
 
 type Layer struct {

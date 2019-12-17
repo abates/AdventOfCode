@@ -13,6 +13,7 @@ import (
 type values struct {
 	Name     string
 	Day      string
+	DayNum   string
 	Receiver string
 	TypeName string
 }
@@ -68,6 +69,7 @@ func main() {
 	v := &values{
 		Name:     fmt.Sprintf("Day %02d", day),
 		Day:      fmt.Sprintf("%02d", day),
+		DayNum:   fmt.Sprintf("%d", day),
 		Receiver: fmt.Sprintf("d%d", day),
 		TypeName: fmt.Sprintf("D%d", day),
 	}
